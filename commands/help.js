@@ -23,7 +23,7 @@ module.exports =
             }
             else
             {
-                answer += args[0] + "is not a valid command";
+                answer += args[0] + " is not a valid command";
             }
         }
         message.channel.send(answer);

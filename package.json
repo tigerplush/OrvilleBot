@@ -1,6 +1,6 @@
 {
   "name": "Orville",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A discord bot who will manage and show open animal crossing islands",
   "main": "orville.js",
   "author": "Christopher 'Tiger' Putz",
