@@ -14,9 +14,9 @@ module.exports =
         {
             answer += this.name + "`\n" + this.description + "\n";
             answer += "Available commands: `" + prefix + commands.map(command => command.name).join('`, `' + prefix) + "`\n";
-            answer += "To open your island, use `!open <dodo_code>` (with your dodo code inserted)\n";
-            answer += "To close your island, just type `!close`\n";
-            answer += "Get more info with `!help <command>`";
+            answer += "To open your island, use `" + prefix + commands.get("open").name + "dodo code` (with your dodo code inserted)\n";
+            answer += "To close your island, just type `" + prefix + commands.get("close").name + "`\n";
+            answer += "Get more info with `!help command`";
         }
         else
         {
