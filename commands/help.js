@@ -23,7 +23,7 @@ module.exports =
             if(commands.has(args[0]))
             {
                 command = commands.get(args[0])
-                answer += command.name + "` " + command.usage + "\n" + command.description;
+                answer += command.name + " " + command.usage + "`\n" + command.description;
             }
             else
             {
