@@ -11,6 +11,12 @@ module.exports =
             return;
         }
 
+        if(! /^([a-zA-Z0-9_-]){5}$/.test(args[0]))
+        {
+            message.reply("Your dodo code is invalid!");
+            return;
+        }
+
         const bot = message.client;
 
         //Create an island
@@ -25,7 +31,7 @@ module.exports =
         
         let newIsland = {
             "owner": message.author,
-            "dodo_code": args[0],
+            "dodo_code": args[0].toUpperCase(),
             "user_name": args[1],
             "island_name": islandName
         };
