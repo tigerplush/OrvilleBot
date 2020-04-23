@@ -54,7 +54,7 @@ module.exports =
         let userid = message.author.id;
         if(openIslands.has(userid))
         {            
-            message.reply("You already have an island open");
+            message.reply("you already have an island open");
         }
         else
         {

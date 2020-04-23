@@ -9,7 +9,7 @@ module.exports =
         let island = bot.openIslands.find(island => island.owner == message.author)
         if(island)
         {
-            closingMessage = "Now closing your island";
+            closingMessage = "now closing your island";
             if(island.island_name)
             {
                 closingMessage += " " + island.island_name;
@@ -23,7 +23,7 @@ module.exports =
         }
         else
         {
-            message.reply("You currently have no open island");
+            message.reply("you currently have no open island");
         }
     },
 };
