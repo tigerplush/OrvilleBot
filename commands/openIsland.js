@@ -1,3 +1,5 @@
+const Discord = require('discord.js');
+
 module.exports =
 {
     name: "open",
@@ -37,16 +39,27 @@ module.exports =
         };
 
         const guildid = message.guild.id;
-        //Check if island is open
-        if( bot.openIslands.find(island => island.owner == newIsland.owner) )
+        let openIslands;
+        if(bot.openIslands.has(guildid))
         {
-            //Yes island is already open
-            message.channel.reply("You already have an island open");
+            openIslands = bot.openIslands.get(guildid);
         }
         else
         {
-            //No, island is not open yet
-            let arrivalMessageContent = "<@" + message.author.id + ">";
+            openIslands = new Discord.Collection();
+            bot.openIslands.set(guildid, openIslands);
+        }
+
+        //Check if user has an island open
+        let userid = message.author.id;
+        if(openIslands.has(userid))
+        {            
+            message.reply("You already have an island open");
+        }
+        else
+        {
+            //open new island
+            let arrivalMessageContent = "<@" + userid + ">";
             if(newIsland.user_name)
             {
                 arrivalMessageContent += " (_" + newIsland.user_name + "_) ";
@@ -63,6 +76,7 @@ module.exports =
             {
                 let arrivalMessage = await currentAirport.send(arrivalMessageContent);
                 newIsland.arrival_message = arrivalMessage;
+                bot.openIslands.get(guildid).set(userid, newIsland);
             }
         }
     },

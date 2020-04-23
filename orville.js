@@ -17,8 +17,8 @@ for (const file of commandFiles) {
 	bot.commands.set(command.name, command);
 }
 
-bot.openIslands = [];
 bot.airports = new Discord.Collection();
+bot.openIslands = new Discord.Collection();
 
 
 const airports = new Datastore(airportsdb);
