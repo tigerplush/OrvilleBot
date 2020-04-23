@@ -19,8 +19,6 @@ for (const file of commandFiles) {
 bot.airports = [];
 bot.openIslands = [];
 
-let commands = {};
-
 function createAirport()
 {
     //iterates over every guild
@@ -58,95 +56,6 @@ function createAirport()
     });
 }
 
-//! Opens a new Island
-//! args[0] is the original message
-//! args[1] is the open command
-//! args[2] is the dodo code
-//! args[3] is the user
-//! args[4] and later is Island name
-async function openIsland(args)
-{
-    message = args[0];
-    if(args.length < 3)
-    {
-        message.reply("Please provide a dodo code!")
-        return;
-    }
-
-    //Create an island
-    let islandName = message.content.split(/[ !]/).slice(4).join(" ");
-    let newIsland = {
-        "owner": message.author,
-        "dodo_code": args[2],
-        "user_name": args[3],
-        "island_name": islandName
-    };
-
-    //Check if island is open
-    if( bot.openIslands.find(island => island.owner == newIsland.owner) )
-    {
-        //Yes island is already open
-        message.channel.send("You already have an island open");
-    }
-    else
-    {
-        //No, island is not open yet
-        let arrivalMessageContent = "<@" + message.author.id + "> - ";
-        if(newIsland.user_name)
-        {
-            arrivalMessageContent += "_" + newIsland.user_name + "_ ";
-        }
-        if(newIsland.island_name)
-        {
-            arrivalMessageContent += "from " + newIsland.island_name;
-        }
-        arrivalMessageContent += ": **" + newIsland.dodo_code + "**";
-
-        let currentAirport = bot.airports.find(airport => airport.guild == message.guild);
-        let arrivalMessage = await currentAirport.send(arrivalMessageContent);
-        newIsland.arrival_message = arrivalMessage;
-        bot.openIslands.push(newIsland);
-    }
-}
-
-function closeIsland(args)
-{
-    message = args[0];
-    let island = openIslands.find(island => island.owner == message.author)
-    if(island)
-    {
-        closingMessage = "Now closing your island";
-        if(island.island_name)
-        {
-            closingMessage += " " + island.island_name;
-        }
-        message.reply("Now closing your island");
-
-        
-        let islandIndex = openIslands.indexOf(island);
-        openIslands.splice(islandIndex, 1);
-        island.arrival_message.delete();
-    }
-    else
-    {
-        message.reply("You currently have no open island");
-    }
-}
-
-function info(args)
-{
-    message = args[0];
-    let infoString = "";
-    infoString += package.name + " v" + package.version + "\n";
-    infoString += package.description + "\n";
-    infoString += "by " + package.author;
-    message.channel.send(infoString);
-}
-
-commands["open"] = openIsland;
-commands["close"] = closeIsland;
-commands["info"] = info;
-
 bot.on("ready", () => {
     createAirport()
 });
@@ -176,17 +85,6 @@ bot.on('message', message => {
             console.error(error);
             message.reply('There was an error trying to execute that command!');
         }
-        // args[0] = message;
-        // try
-        // {
-        //     commands[args[1]](args);
-        // }
-        // catch (err)
-        // {
-        //     message.reply("Sorry, I didn't understand that");
-        //     console.log(err);
-        // }
-
     }
     
 });
