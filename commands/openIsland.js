@@ -40,7 +40,7 @@ module.exports =
         if( bot.openIslands.find(island => island.owner == newIsland.owner) )
         {
             //Yes island is already open
-            message.channel.send("You already have an island open");
+            message.channel.reply("You already have an island open");
         }
         else
         {
