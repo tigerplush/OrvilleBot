@@ -39,20 +39,21 @@ module.exports =
         };
 
         const guildid = message.guild.id;
-        let openIslands;
+        let islandCollection;
+
         if(bot.openIslands.has(guildid))
         {
-            openIslands = bot.openIslands.get(guildid);
+            islandCollection = bot.openIslands.get(guildid);
         }
         else
         {
-            openIslands = new Discord.Collection();
-            bot.openIslands.set(guildid, openIslands);
+            islandCollection = new Discord.Collection();
+            bot.openIslands.set(guildid, islandCollection);
         }
 
         //Check if user has an island open
         let userid = message.author.id;
-        if(openIslands.has(userid))
+        if(islandCollection.has(userid))
         {            
             message.reply("you already have an island open");
         }
@@ -76,7 +77,7 @@ module.exports =
             {                
                 let arrivalMessage = await currentAirport.send(arrivalMessageContent);
                 newIsland.arrival_message = arrivalMessage;
-                bot.openIslands.get(guildid).set(userid, newIsland);
+                islandCollection.set(userid, newIsland);
             }
         }
     },
