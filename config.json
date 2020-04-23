@@ -1,4 +1,4 @@
 {
     "prefix": "!orville ",
-    "flightScheduleName": "flight-schedule"
+    "airportsdb": "airports.db",
 }

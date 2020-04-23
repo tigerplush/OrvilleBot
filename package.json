@@ -6,6 +6,7 @@
   "author": "Christopher 'Tiger' Putz",
   "github": "https://github.com/tigerplush/OrvilleBot",
   "dependencies": {
-    "discord.js": "^12.2.0"
+    "discord.js": "^12.2.0",
+    "nedb": "^1.8.0"
   }
 }

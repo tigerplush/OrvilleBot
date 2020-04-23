@@ -2,7 +2,8 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const auth = require('./auth.json');
 const package = require('./package.json');
-const {prefix, flightScheduleName} = require('./config.json');
+const Datastore = require('nedb');
+const {prefix, airportsdb, openislandsdb, userinfodb} = require('./config.json');
 
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -16,48 +17,44 @@ for (const file of commandFiles) {
 	bot.commands.set(command.name, command);
 }
 
-bot.airports = [];
 bot.openIslands = [];
+bot.airports = new Discord.Collection();
 
-function createAirport()
+
+const airports = new Datastore(airportsdb);
+
+function loadData()
 {
-    //iterates over every guild
-    bot.guilds.cache.forEach(element => {
+    airports.loadDatabase();
+    airports.find({}, function(err, docs)
+    {
+        docs.forEach(airport => {
+            bot.airports.set(airport.serverid, airport.channelid);
+        });
+    });
 
-        let terminal = element.channels.cache.find(chan => chan.name === "terminal");
-        if(!terminal)
-        {
-            let key = element.channels.cache.find(par => par.rawPosition == 0).id;
-            
-            element.channels.create("terminal", {
-                type: "text",
-                topic: "A place to open and close your islands",
-                nsfw: "false",
-                parent: key
-            });
-        }
 
-        let airport = element.channels.cache.find(chan => chan.name === flightScheduleName);
-        if(!airport)
+bot.on('updateAirports', airport =>
+{
+    airports.find({serverid: airport.serverid}, function(err, docs)
+    {
+        if(docs && docs.length > 0)
         {
-            let key = element.channels.cache.find(par => par.rawPosition == 0).id;
-            
-            element.channels.create(flightScheduleName, {
-                type: "text",
-                topic: "Current open islands",
-                nsfw: "false",
-                parent: key
-            });
+            airports.update(
+                {serverid: airport.serverid},
+                {$set: {channelid: airport.channelid}},
+                {},
+                function (){});
         }
         else
-        {
-            bot.airports.push(airport);
+        {            
+            airports.insert(airport);
         }
-    });
-}
+    })
+});
 
-bot.on("ready", () => {
-    createAirport()
+bot.on('ready', () => {
+    loadData()
 });
 
 bot.on('channelCreate', newChannel => {

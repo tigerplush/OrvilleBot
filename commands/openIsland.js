@@ -56,10 +56,13 @@ module.exports =
             }
             arrivalMessageContent += ": **" + newIsland.dodo_code + "**";
 
-            let currentAirport = bot.airports.find(airport => airport.guild == message.guild);
-            let arrivalMessage = await currentAirport.send(arrivalMessageContent);
-            newIsland.arrival_message = arrivalMessage;
-            bot.openIslands.push(newIsland);
+            let airport = bot.airports.get(message.guild.id);
+            let currentAirport = bot.channels.cache.get(airport.channelid);
+            if(currentAirport)
+            {
+                let arrivalMessage = await currentAirport.send(arrivalMessageContent);
+                newIsland.arrival_message = arrivalMessage;
+            }
         }
     },
 };
