@@ -71,9 +71,9 @@ module.exports =
             arrivalMessageContent += ": **" + newIsland.dodo_code + "**";
 
             let airport = bot.airports.get(guildid);
-            let currentAirport = bot.channels.cache.get(airport.channelid);
+            let currentAirport = bot.channels.cache.get(airport);
             if(currentAirport)
-            {
+            {                
                 let arrivalMessage = await currentAirport.send(arrivalMessageContent);
                 newIsland.arrival_message = arrivalMessage;
                 bot.openIslands.get(guildid).set(userid, newIsland);
