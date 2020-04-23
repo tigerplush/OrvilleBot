@@ -22,6 +22,7 @@ bot.openIslands = new Discord.Collection();
 
 
 const airports = new Datastore(airportsdb);
+const openIslands = new Datastore(openislandsdb);
 
 function loadData()
 {
@@ -33,6 +34,30 @@ function loadData()
         });
     });
 
+    openIslands.loadDatabase();
+    openIslands.find({}, function(err, docs)
+    {
+        docs.forEach(openIsland => {
+            //retrieve airport
+            let channelid = bot.airports.get(openIsland.serverid);
+            //retrieve channel where message was posted            
+            let channel = bot.channels.cache.get(channelid);
+            //retrieve message
+            /*let message = */channel.messages.fetch(openIsland.messageid)
+            .then( message => {
+                let newIsland = {};
+                newIsland.arrival_message = message;
+    
+                let user = new Discord.Collection();
+                user.set(openIsland.userid, newIsland);
+                bot.openIslands.set(openIsland.serverid, user);
+                console.log(bot.openIslands);
+            });
+            
+        });
+    });
+
+}
 
 bot.on('updateAirports', airport =>
 {
@@ -51,6 +76,17 @@ bot.on('updateAirports', airport =>
             airports.insert(airport);
         }
     })
+});
+
+bot.on('openIsland', islanddata =>
+{
+    islanddata.data = bot.openIslands.get(islanddata.guildid).get(islanddata.userid);
+    openIslands.insert(
+        {
+            serverid: islanddata.guildid,
+            userid: islanddata.userid,
+            messageid: islanddata.data.arrival_message.id
+        });
 });
 
 bot.on('ready', () => {

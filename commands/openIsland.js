@@ -78,6 +78,7 @@ module.exports =
                 let arrivalMessage = await currentAirport.send(arrivalMessageContent);
                 newIsland.arrival_message = arrivalMessage;
                 islandCollection.set(userid, newIsland);
+                bot.emit('openIsland', {guildid: guildid, userid: userid});
             }
         }
     },
