@@ -36,6 +36,7 @@ module.exports =
             "island_name": islandName
         };
 
+        const guildid = message.guild.id;
         //Check if island is open
         if( bot.openIslands.find(island => island.owner == newIsland.owner) )
         {
@@ -56,7 +57,7 @@ module.exports =
             }
             arrivalMessageContent += ": **" + newIsland.dodo_code + "**";
 
-            let airport = bot.airports.get(message.guild.id);
+            let airport = bot.airports.get(guildid);
             let currentAirport = bot.channels.cache.get(airport.channelid);
             if(currentAirport)
             {
