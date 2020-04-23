@@ -6,7 +6,9 @@ module.exports =
     execute(message, args)
     {
         const bot = message.client;
-        let island = bot.openIslands.find(island => island.owner == message.author)
+        const guildid = message.guild.id;
+        const userid = message.author.id;
+        let island = bot.openIslands.get(guildid).get(userid);
         if(island)
         {
             closingMessage = "now closing your island";
@@ -15,10 +17,8 @@ module.exports =
                 closingMessage += " " + island.island_name;
             }
             message.reply(closingMessage);
-
             
-            let islandIndex = bot.openIslands.indexOf(island);
-            bot.openIslands.splice(islandIndex, 1);
+            bot.openIslands.get(guildid).delete(userid);
             island.arrival_message.delete();
         }
         else
