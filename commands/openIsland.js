@@ -3,8 +3,8 @@ const Discord = require('discord.js');
 module.exports =
 {
     name: "open",
-    usage: "<dodo code> (Ingame name) (Island name)",
-    description: "Opens your island. Dodo code is mandatory, ingame name and island name can be omitted",
+    usage: "dodo-code (comment)",
+    description: "Opens your island. Dodo code is mandatory, comments (e.g. for turnip prices or diy recipes) is optional",
     async execute(message, args)
     {
         if(args.length < 1)
@@ -67,8 +67,10 @@ module.exports =
             }
             arrivalMessageContent += ": **" + dodo_code.toUpperCase() + "**";
 
+            let comment = args.join(' ');
+            if(comment)
             {
-                arrivalMessageContent += "from " + newIsland.island_name;
+                arrivalMessageContent += " (" + comment + ")";
             }
 
             let airport = bot.airports.get(guildid);
