@@ -1,10 +1,10 @@
 const Datastore = require('nedb');
 const Discord = require('discord.js');
-const {airportsdb, openislandsdb, userinfodb} = require('./config.json');
+const {databasepath, airportsdb, openislandsdb, userinfodb} = require('./config.json');
 
-const airports = new Datastore(airportsdb);
-const openIslands = new Datastore(openislandsdb);
-const userInfo = new Datastore(userinfodb);
+const airports = new Datastore(databasepath + "/" + airportsdb);
+const openIslands = new Datastore(databasepath + "/" + openislandsdb);
+const userInfo = new Datastore(databasepath + "/" + userinfodb);
 module.exports =
 {
     loadDatabases(client)
