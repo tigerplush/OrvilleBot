@@ -36,7 +36,7 @@ module.exports =
             userInfo = {};
             userCollection.set(userid, userInfo);
         }
-        userInfo.name = args.joing(' ');
+        userInfo.name = args.join(' ');
         message.reply(" your ingame name is now " + userInfo.name);
         
         message.client.emit('userUpdate', {serverid: guildid, userid: userid, name: userInfo.name});
