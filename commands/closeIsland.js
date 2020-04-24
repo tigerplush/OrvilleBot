@@ -20,6 +20,7 @@ module.exports =
             
             bot.openIslands.get(guildid).delete(userid);
             island.arrival_message.delete();
+            bot.emit('closeIsland', {guildid: guildid, userid: userid});
         }
         else
         {

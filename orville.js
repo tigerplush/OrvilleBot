@@ -89,6 +89,15 @@ bot.on('openIsland', islanddata =>
         });
 });
 
+bot.on('closeIsland', islanddata =>
+{
+    openIslands.remove(
+        {
+            serverid: islanddata.guildid,
+            userid: islanddata.userid
+        });
+});
+
 bot.on('ready', () => {
     loadData()
 });
