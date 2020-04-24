@@ -149,14 +149,6 @@ bot.on('ready', () => {
     loadData()
 });
 
-bot.on('channelCreate', newChannel => {
-    if(newChannel.name === flightScheduleName)
-    {
-        newChannel.send("Airport successfully opened\nType '!help' for some help");
-        airports.push(newChannel);
-    }
-});
-
 bot.on('message', message => {
     if(message.content.startsWith(prefix) && !message.author.bot)
     {
