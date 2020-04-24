@@ -13,7 +13,8 @@ module.exports =
             return;
         }
 
-        if(! /^([a-zA-Z0-9_-]){5}$/.test(args[0]))
+        const dodo_code = args.shift();
+        if(! /^([a-zA-Z0-9_-]){5}$/.test(dodo_code))
         {
             message.reply("Your dodo code is invalid!");
             return;
@@ -66,10 +67,10 @@ module.exports =
                 arrivalMessageContent += " (_" + newIsland.user_name + "_) ";
             }
             if(newIsland.island_name)
+            arrivalMessageContent += ": **" + dodo_code.toUpperCase() + "**";
             {
                 arrivalMessageContent += "from " + newIsland.island_name;
             }
-            arrivalMessageContent += ": **" + newIsland.dodo_code + "**";
 
             let airport = bot.airports.get(guildid);
             let currentAirport = bot.channels.cache.get(airport);
