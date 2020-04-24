@@ -19,6 +19,7 @@ for (const file of commandFiles) {
 
 bot.airports = new Discord.Collection();
 bot.openIslands = new Discord.Collection();
+bot.userInfo = new Discord.Collection();
 
 
 const airports = new Datastore(airportsdb);
