@@ -22,23 +22,6 @@ module.exports =
 
         const bot = message.client;
 
-        //Create an island
-        let islandName = "";
-
-        for(let i = 2; i < args.length; i++)
-        {
-            islandName += args[i] + " ";
-        }
-
-        islandName = islandName.trim();
-        
-        let newIsland = {
-            "owner": message.author,
-            "dodo_code": args[0].toUpperCase(),
-            "user_name": args[1],
-            "island_name": islandName
-        };
-
         const guildid = message.guild.id;
         let islandCollection;
 
@@ -62,12 +45,28 @@ module.exports =
         {
             //open new island
             let arrivalMessageContent = "<@" + userid + ">";
-            if(newIsland.user_name)
+            let newIsland = {};
+
+            const serverCollection = message.client.userInfo;
+            if(serverCollection.has(guildid))
             {
-                arrivalMessageContent += " (_" + newIsland.user_name + "_) ";
+                const userCollection = serverCollection.get(guildid);
+                if(userCollection.has(userid))
+                {
+                    newIsland = userCollection.get(userid);
+                }
             }
-            if(newIsland.island_name)
+            
+            if(newIsland.name)
+            {
+                arrivalMessageContent += " (_" + newIsland.name + "_)";
+            }
+            if(newIsland.island)
+            {
+                arrivalMessageContent += " from " + newIsland.island;
+            }
             arrivalMessageContent += ": **" + dodo_code.toUpperCase() + "**";
+
             {
                 arrivalMessageContent += "from " + newIsland.island_name;
             }
