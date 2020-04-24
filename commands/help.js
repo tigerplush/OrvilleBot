@@ -22,6 +22,7 @@ module.exports =
             });
             answer = answer.slice(0, answer.length - 2);
             answer += "\n";
+            answer += "To open your island, use `" + prefix + commands.get("open").name + " dodo code` (with your dodo code inserted)\n";
             answer += "To close your island, just type `" + prefix + commands.get("close").name + "`\n";
             answer += "Get more info with `!help command`";
         }
