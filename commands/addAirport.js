@@ -2,6 +2,7 @@ module.exports =
 {
     name: "add-airport",
     usage: "server-id channel-id",
+    hidden: true,
     description: "Adds a channel of a server as airport",
     execute(message, args)
     {
