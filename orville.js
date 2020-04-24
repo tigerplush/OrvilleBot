@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const auth = require('./auth.json');
 const package = require('./package.json');
 const Datastore = require('nedb');
+const database = require('./database.js');
 const {prefix, airportsdb, openislandsdb, userinfodb} = require('./config.json');
 
 const bot = new Discord.Client();
@@ -21,132 +22,24 @@ bot.airports = new Discord.Collection();
 bot.openIslands = new Discord.Collection();
 bot.userInfo = new Discord.Collection();
 
-
-const airports = new Datastore(airportsdb);
-const openIslands = new Datastore(openislandsdb);
-const userInfo = new Datastore(userinfodb);
-
-function loadData()
-{
-    airports.loadDatabase();
-    airports.find({}, function(err, docs)
-    {
-        docs.forEach(airport => {
-            bot.airports.set(airport.serverid, airport.channelid);
-        });
-    });
-
-    openIslands.loadDatabase();
-    openIslands.find({}, function(err, docs)
-    {
-        docs.forEach(openIsland => {
-            //retrieve airport
-            let channelid = bot.airports.get(openIsland.serverid);
-            //retrieve channel where message was posted            
-            let channel = bot.channels.cache.get(channelid);
-            //retrieve message
-            /*let message = */channel.messages.fetch(openIsland.messageid)
-            .then( message => {
-                let newIsland = {};
-                newIsland.arrival_message = message;
-    
-                let user = new Discord.Collection();
-                user.set(openIsland.userid, newIsland);
-                bot.openIslands.set(openIsland.serverid, user);
-            });
-            
-        });
-    });
-
-    userInfo.loadDatabase();
-    userInfo.find({}, function(err, docs)
-    {
-        docs.forEach(user => 
-            {
-                const userInfo =
-                {
-                    name: user.name,
-                    island: user.island
-                }
-                const userCollection = new Discord.Collection();
-                userCollection.set(user.userid, userInfo);
-                bot.userInfo.set(user.serverid, userCollection);
-            });
-    });
-}
-
-bot.on('updateAirports', airport =>
-{
-    airports.find({serverid: airport.serverid}, function(err, docs)
-    {
-        if(docs && docs.length > 0)
-        {
-            airports.update(
-                {serverid: airport.serverid},
-                {$set: {channelid: airport.channelid}},
-                {},
-                function (){});
-        }
-        else
-        {            
-            airports.insert(airport);
-        }
-    })
+bot.on('updateAirports', airport => {
+    database.updateAirport(airport)
 });
 
-bot.on('openIsland', islanddata =>
-{
-    islanddata.data = bot.openIslands.get(islanddata.guildid).get(islanddata.userid);
-    openIslands.insert(
-        {
-            serverid: islanddata.guildid,
-            userid: islanddata.userid,
-            messageid: islanddata.data.arrival_message.id
-        });
+bot.on('openIsland', islandData => {
+    database.openIsland(islandData)
 });
 
-bot.on('closeIsland', islanddata =>
-{
-    openIslands.remove(
-        {
-            serverid: islanddata.guildid,
-            userid: islanddata.userid
-        });
+bot.on('closeIsland', islandData => {
+    database.closeIsland(islandData)
 });
 
-bot.on('userUpdate', (userData) =>
-{
-    userInfo.find({serverid: userData.serverid, userid: userData.userid},
-        function(err, docs)
-        {
-            if(docs && docs.length > 0)
-            {
-                if(userData.name)
-                {
-                    userInfo.update(
-                    {serverid: userData.serverid, userid: userData.userid},
-                    {$set: {name: userData.name}},
-                    {},
-                    function (){});
-                }
-                if(userData.island)
-                {
-                    userInfo.update(
-                    {serverid: userData.serverid, userid: userData.userid},
-                    {$set: {island: userData.island}},
-                    {},
-                    function (){});
-                }                
-            }
-            else
-            {            
-                userInfo.insert(userData);
-            }
-        });
+bot.on('userUpdate', userData => {
+    database.updateUserData(userData)
 });
 
 bot.on('ready', () => {
-    loadData()
+    database.loadDatabases(bot);
 });
 
 bot.on('message', message => {
