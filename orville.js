@@ -24,6 +24,7 @@ bot.userInfo = new Discord.Collection();
 
 const airports = new Datastore(airportsdb);
 const openIslands = new Datastore(openislandsdb);
+const userInfo = new Datastore(userinfodb);
 
 function loadData()
 {
@@ -52,12 +53,26 @@ function loadData()
                 let user = new Discord.Collection();
                 user.set(openIsland.userid, newIsland);
                 bot.openIslands.set(openIsland.serverid, user);
-                console.log(bot.openIslands);
             });
             
         });
     });
 
+    userInfo.loadDatabase();
+    userInfo.find({}, function(err, docs)
+    {
+        docs.forEach(user => 
+            {
+                const userInfo =
+                {
+                    name: user.name,
+                    island: user.island
+                }
+                const userCollection = new Discord.Collection();
+                userCollection.set(user.userid, userInfo);
+                bot.userInfo.set(user.serverid, userCollection);
+            });
+    });
 }
 
 bot.on('updateAirports', airport =>
@@ -96,6 +111,37 @@ bot.on('closeIsland', islanddata =>
         {
             serverid: islanddata.guildid,
             userid: islanddata.userid
+        });
+});
+
+bot.on('userUpdate', (userData) =>
+{
+    userInfo.find({serverid: userData.serverid, userid: userData.userid},
+        function(err, docs)
+        {
+            if(docs && docs.length > 0)
+            {
+                if(userData.name)
+                {
+                    userInfo.update(
+                    {serverid: userData.serverid, userid: userData.userid},
+                    {$set: {name: userData.name}},
+                    {},
+                    function (){});
+                }
+                if(userData.island)
+                {
+                    userInfo.update(
+                    {serverid: userData.serverid, userid: userData.userid},
+                    {$set: {island: userData.island}},
+                    {},
+                    function (){});
+                }                
+            }
+            else
+            {            
+                userInfo.insert(userData);
+            }
         });
 });
 

@@ -2,4 +2,5 @@
     "prefix": "!orville ",
     "airportsdb": "airports.db",
     "openislandsdb": "openislands.db",
+    "userinfodb": "userinfo.db"
 }

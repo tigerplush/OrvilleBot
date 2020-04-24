@@ -38,6 +38,6 @@ module.exports =
         }
         userInfo.name = args[0];
         
-        message.client.emit('userUpdate');
+        message.client.emit('userUpdate', {serverid: guildid, userid: userid, name: userInfo.name});
     },
 };

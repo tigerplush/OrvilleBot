@@ -38,6 +38,6 @@ module.exports =
         }
         userInfo.island = args.join(' ');
         
-        message.client.emit('userUpdate');
+        message.client.emit('userUpdate', {serverid: guildid, userid: userid, island: userInfo.island});
     },
 };
