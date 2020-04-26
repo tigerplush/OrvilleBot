@@ -5,6 +5,7 @@ const Datastore = require('nedb');
 const database = require('./database.js');
 const graphic = require('./graphic.js');
 const {prefix, url} = require('./config.json');
+const content = require('./content.js');
 
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -26,21 +27,14 @@ bot.on('updateAirports', airport => {
     database.updateAirport(airport)
 });
 
-bot.on('openIsland', islandData => {
-    database.openIsland(islandData);
-
+bot.on('openIsland', island => {
     if(url && url.length != 0)
     {
-        const islandInfo = bot.openIslands.get(islandData.guildid).get(islandData.userid);
-        const island = {
-            serverid: islandData.guildid,
-            userid: islandData.userid,
-            name: islandInfo.name,
-            island: islandInfo.island,
-            title: islandInfo.title,
-            dodocode: islandInfo.dodocode
-        };
         graphic.requestImage(bot, island);
+    }
+    else
+    {
+        bot.emit('fetchedUrl', island);
     }
 });
 
@@ -58,13 +52,22 @@ bot.on('requestSent', (island) => {
 });
 
 bot.on('fetchedUrl', (island) => {
-    bot.channels.cache.get(bot.airports.get(island.serverid)).send(
-        "",
-        {
-             "files": [Buffer.from(island.baseUrl)]
-            });
-});
+    const arrivalMessageContent = content.create(island);
 
+    let attachment;
+    if(island.baseUrl)
+    {
+        attachment = new Discord.MessageAttachment(Buffer.from(island.baseUrl));
+    }
+    bot.channels.cache.get(bot.airports.get(island.serverid)).send(arrivalMessageContent, attachment)
+    .then(graphMessage => 
+        {
+            island.arrivalMessage = graphMessage;
+        })
+    .catch(err => console.log(err));
+    
+    //database.openIsland(islandData);
+});
 
 bot.on('ready', () => {
     database.loadDatabases(bot);
@@ -81,7 +84,8 @@ bot.on('message', message => {
             return;
         }
 
-        try {
+        try
+        {
             bot.commands.get(command).execute(message, args);
         } catch (error) {
             console.error(error);
@@ -91,4 +95,5 @@ bot.on('message', message => {
     
 });
 
-bot.login(auth.token);
+bot.login(auth.token)
+.catch(err => console.log(err));

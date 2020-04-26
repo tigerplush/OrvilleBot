@@ -13,13 +13,13 @@ module.exports =
             return;
         }
 
-        let dodo_code = args.shift();
-        if(! /^([a-zA-Z0-9_-]){5}$/.test(dodo_code))
+        let dodoCode = args.shift();
+        if(! /^([a-zA-Z0-9_-]){5}$/.test(dodoCode))
         {
             message.reply("Your dodo code is invalid!");
             return;
         }
-        dodo_code = dodo_code.toUpperCase();
+        dodoCode = dodoCode.toUpperCase();
 
         const bot = message.client;
 
@@ -45,7 +45,6 @@ module.exports =
         else
         {
             //open new island
-            let arrivalMessageContent = "<@" + userid + ">";
             let newIsland = {};
 
             const serverCollection = message.client.userInfo;
@@ -57,39 +56,21 @@ module.exports =
                     newIsland = userCollection.get(userid);
                 }
             }
-            
-            if(newIsland.name)
-            {
-                arrivalMessageContent += " (_" + newIsland.name + "_)";
-            }
-            if(newIsland.island)
-            {
-                arrivalMessageContent += " from " + newIsland.island;
-            }
-            arrivalMessageContent += ": **" + dodo_code + "**";
 
-            let comment = args.join(' ');
-            if(comment)
-            {
-                arrivalMessageContent += " (" + comment + ")";
-            }
+            let title = args.join(' ');
 
             let airport = bot.airports.get(guildid);
             let currentAirport = bot.channels.cache.get(airport);
             if(currentAirport)
             {
-                currentAirport.send(arrivalMessageContent)
-                .then(arrivalMessage => 
-                    {
-                        newIsland.serverid = guildid;
-                        newIsland.userid = message.author.id;
-                        newIsland.title = comment;
-                        newIsland.arrival_message = arrivalMessage;
-                        newIsland.dodocode = dodo_code;
-                        islandCollection.set(userid, newIsland);
-                        bot.emit('openIsland', {guildid: guildid, userid: userid, arrivalMessage: arrivalMessage});
-                    })
-                .catch(err => console.log(err));
+                newIsland.arrivalMessage = {};
+                newIsland.baseUrl = "";
+                newIsland.serverid = guildid;
+                newIsland.userid = message.author.id;
+                newIsland.title = title;
+                newIsland.dodocode = dodoCode;
+                islandCollection.set(userid, newIsland);
+                bot.emit('openIsland', newIsland);
             }
         }
     },
