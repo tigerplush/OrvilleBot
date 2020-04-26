@@ -1,7 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const auth = require('./auth.json');
-const package = require('./package.json');
 const Datastore = require('nedb');
 const database = require('./database.js');
 const graphic = require('./graphic.js');
