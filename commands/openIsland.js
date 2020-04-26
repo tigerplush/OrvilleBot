@@ -13,12 +13,13 @@ module.exports =
             return;
         }
 
-        const dodo_code = args.shift();
+        let dodo_code = args.shift();
         if(! /^([a-zA-Z0-9_-]){5}$/.test(dodo_code))
         {
             message.reply("Your dodo code is invalid!");
             return;
         }
+        dodo_code = dodo_code.toUpperCase();
 
         const bot = message.client;
 
@@ -65,7 +66,7 @@ module.exports =
             {
                 arrivalMessageContent += " from " + newIsland.island;
             }
-            arrivalMessageContent += ": **" + dodo_code.toUpperCase() + "**";
+            arrivalMessageContent += ": **" + dodo_code + "**";
 
             let comment = args.join(' ');
             if(comment)
