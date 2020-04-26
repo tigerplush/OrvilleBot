@@ -23,19 +23,22 @@ module.exports =
             docs.forEach(openIsland => {
                 //retrieve airport
                 let channelid = client.airports.get(openIsland.serverid);
-                //retrieve channel where message was posted            
-                let channel = client.channels.cache.get(channelid);
-                //retrieve message
-                /*let message = */channel.messages.fetch(openIsland.messageid)
-                .then( message => {
-                    let newIsland = {};
-                    newIsland.arrival_message = message;
-        
-                    let user = new Discord.Collection();
-                    user.set(openIsland.userid, newIsland);
-                    client.openIslands.set(openIsland.serverid, user);
-                });
-                
+                //retrieve channel where message was posted
+                client.channels.fetch(channelid)
+                .then(channel => {
+                    channel.messages.fetch(openIsland.messageid)
+                    .then( message => {
+                        let newIsland = {};
+                        newIsland.arrival_message = message;
+            
+                        let user = new Discord.Collection();
+                        user.set(openIsland.userid, newIsland);
+                        client.openIslands.set(openIsland.serverid, user);
+                    })
+                    .catch(console.log("Couldn't find the open island message, somebody must have deleted it"));
+                })
+                .catch(console.log("Couldn't find the channel in the cache, the bot must have been kicked from the server"));
+                              
             });
         });
 

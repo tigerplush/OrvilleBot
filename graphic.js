@@ -17,6 +17,7 @@ module.exports =
         fetch(url + '/create', options)
             .then(res => res.json())
             .then(console.log("image requested"))
+            .catch(err => console.log(err))
             .finally(client.emit('requestSent', island));
     },
     removeImage(island)
@@ -32,9 +33,9 @@ module.exports =
 
         fetch(url + '/remove', options)
             .then(res => res.json())
-            .then(json => console.log(json));
+            .catch(err => console.log(err));
     },
-    async getImageBaseUrl(client, island)
+    getImageBaseUrl(client, island)
     {
         const options = {
             method: 'POST',
@@ -45,9 +46,14 @@ module.exports =
             body: JSON.stringify(island)
         }
 
-        const response = await fetch(url + '/fetch', options);
-        const json = await response.json();
-        island.baseUrl = json.dataURL;
-        client.emit('fetchedUrl', island)
+        fetch(url + '/fetch', options)
+        .then(response => response.json())
+        .then(json => {
+            island.baseUrl = json.dataURL;
+            client.emit('fetchedUrl', island)
+        })
+        .catch(err => console.log(err));
+        
+        
     }
 }

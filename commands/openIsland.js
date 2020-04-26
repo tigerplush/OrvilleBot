@@ -5,7 +5,7 @@ module.exports =
     name: "open",
     usage: "dodo-code (comment)",
     description: "Opens your island. Dodo code is mandatory, comments (e.g. for turnip prices or diy recipes) is optional",
-    async execute(message, args)
+    execute(message, args)
     {
         if(args.length < 1)
         {
@@ -77,15 +77,19 @@ module.exports =
             let airport = bot.airports.get(guildid);
             let currentAirport = bot.channels.cache.get(airport);
             if(currentAirport)
-            {                
-                let arrivalMessage = await currentAirport.send(arrivalMessageContent);
-                newIsland.serverid = guildid;
-                newIsland.userid = message.author.id;
-                newIsland.title = comment;
-                newIsland.arrival_message = arrivalMessage;
-                newIsland.dodocode = dodo_code;
-                islandCollection.set(userid, newIsland);
-                bot.emit('openIsland', {guildid: guildid, userid: userid, arrivalMessage: arrivalMessage});
+            {
+                currentAirport.send(arrivalMessageContent)
+                .then(arrivalMessage => 
+                    {
+                        newIsland.serverid = guildid;
+                        newIsland.userid = message.author.id;
+                        newIsland.title = comment;
+                        newIsland.arrival_message = arrivalMessage;
+                        newIsland.dodocode = dodo_code;
+                        islandCollection.set(userid, newIsland);
+                        bot.emit('openIsland', {guildid: guildid, userid: userid, arrivalMessage: arrivalMessage});
+                    })
+                .catch(err => console.log(err));
             }
         }
     },

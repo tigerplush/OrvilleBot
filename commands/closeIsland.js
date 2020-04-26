@@ -19,7 +19,8 @@ module.exports =
             message.reply(closingMessage);
             
             bot.openIslands.get(guildid).delete(userid);
-            island.arrival_message.delete();
+            island.arrival_message.delete()
+            .catch(err => console.log(err));
             bot.emit('closeIsland', {guildid: guildid, userid: userid});
         }
         else
