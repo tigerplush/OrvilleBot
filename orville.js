@@ -4,7 +4,8 @@ const auth = require('./auth.json');
 const package = require('./package.json');
 const Datastore = require('nedb');
 const database = require('./database.js');
-const {prefix, airportsdb, openislandsdb, userinfodb} = require('./config.json');
+const graphic = require('./graphic.js');
+const {prefix, url} = require('./config.json');
 
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -27,7 +28,21 @@ bot.on('updateAirports', airport => {
 });
 
 bot.on('openIsland', islandData => {
-    database.openIsland(islandData)
+    database.openIsland(islandData);
+
+    if(url && url.length != 0)
+    {
+        const islandInfo = bot.openIslands.get(islandData.guildid).get(islandData.userid);
+        const island = {
+            serverid: islandData.guildid,
+            userid: islandData.userid,
+            name: islandInfo.name,
+            island: islandInfo.island,
+            title: islandInfo.title,
+            dodocode: islandInfo.dodocode
+        };
+        graphic.requestImage(bot, island);
+    }
 });
 
 bot.on('closeIsland', islandData => {
@@ -37,6 +52,19 @@ bot.on('closeIsland', islandData => {
 bot.on('userUpdate', userData => {
     database.updateUserData(userData)
 });
+
+bot.on('requestSent', (island) => {
+    graphic.getImageBaseUrl(bot, island);
+});
+
+bot.on('fetchedUrl', (island) => {
+    bot.channels.cache.get(bot.airports.get(island.serverid)).send(
+        "",
+        {
+             "files": [Buffer.from(island.baseUrl)]
+            });
+});
+
 
 bot.on('ready', () => {
     database.loadDatabases(bot);

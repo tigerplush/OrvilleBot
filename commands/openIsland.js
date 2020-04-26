@@ -79,7 +79,11 @@ module.exports =
             if(currentAirport)
             {                
                 let arrivalMessage = await currentAirport.send(arrivalMessageContent);
+                newIsland.serverid = guildid;
+                newIsland.userid = message.author.id;
+                newIsland.title = comment;
                 newIsland.arrival_message = arrivalMessage;
+                newIsland.dodocode = dodo_code;
                 islandCollection.set(userid, newIsland);
                 bot.emit('openIsland', {guildid: guildid, userid: userid, arrivalMessage: arrivalMessage});
             }
