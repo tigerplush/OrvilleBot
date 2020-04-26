@@ -50,10 +50,8 @@ module.exports =
         .then(response => response.json())
         .then(json => {
             island.baseUrl = json.dataURL;
-            client.emit('fetchedUrl', island)
+            client.emit('fetchedUrl', island);
         })
         .catch(err => console.log(err));
-        
-        
     }
 }

@@ -40,5 +40,5 @@ module.exports =
         message.reply(" your island name is now " + userInfo.island);
         
         message.client.emit('userUpdate', {serverid: guildid, userid: userid, island: userInfo.island});
-    },
+    }
 };
