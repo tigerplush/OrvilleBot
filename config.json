@@ -1,7 +1,7 @@
 {
-    "prefix": "!orville ",
-    "databasepath": "databases",
-    "airportsdb": "airports.db",
-    "openislandsdb": "openislands.db",
-    "userinfodb": "userinfo.db"
+    "prefix": "!orville "
+    ,"databasepath": "databases"
+    ,"airportsdb": "airports.db"
+    ,"openislandsdb": "openislands.db"
+    ,"userinfodb": "userinfo.db"
 }
