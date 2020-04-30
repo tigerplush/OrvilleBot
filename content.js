@@ -12,7 +12,7 @@ module.exports =
         {
             arrivalMessageContent += " from " + island.island;
         }
-        arrivalMessageContent += ": **" + island.dodocode + "**";
+        arrivalMessageContent += ": **" + island.dodoCode + "**";
         
         if(island.title)
         {
