@@ -77,6 +77,10 @@ function createIsland(message, dodoCode, comment)
         })
     .then(user =>
         {
+            if(!user)
+            {
+                user = {};
+            }
             user.dodoCode = dodoCode;
             user.title = comment;
             client.emit('openIsland', user);
