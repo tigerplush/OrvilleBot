@@ -38,7 +38,7 @@ bot.on('openIsland', island => {
 
 bot.on('closeIsland', island => {
     bot.database.closeIsland(island);
-    graphic.removeImage({serverid: island.serverid, userid: island.userid});
+    graphic.removeImage(island);
 });
 
 bot.on('userUpdate', userData => {
