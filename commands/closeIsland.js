@@ -3,6 +3,10 @@ module.exports =
     name: "close",
     usage: "",
     description: "Closes your currently open island",
+    example:
+        [
+            ["", "closes your currently open island"]
+        ],
     execute(message, args)
     {
         const bot = message.client;

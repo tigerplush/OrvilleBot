@@ -4,6 +4,10 @@ module.exports =
     name: "info",
     usage: "",
     description: "Gives basic info about Orville",
+    example:
+        [
+            ["", "returns basic information about orville"]
+        ],
     execute(message, args)
     {
         let infoString = "";

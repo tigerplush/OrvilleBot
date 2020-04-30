@@ -3,7 +3,12 @@ module.exports =
 {
     name: "name",
     usage: "your-name",
-    description: "Sets your ingame name",
+    description: "Sets or updates your ingame name. Without a name I will tell you your current name",
+    example: [
+        ["", "returns your current name"],
+        ["Cheddar", "sets your name to 'Cheddar'"],
+        ["Gizmo the gremlin", "sets your name to 'Gizmo the gremlin'"]
+    ],
     execute(message, args)
     {
         if(args.length < 1)

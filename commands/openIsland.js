@@ -5,6 +5,11 @@ module.exports =
     name: "open",
     usage: "dodo-code (comment)",
     description: "Opens your island. Dodo code is mandatory, comments (e.g. for turnip prices or diy recipes) is optional",
+    example:
+        [
+            ["ASDFG", "opens an island with the dodo code 'ASDFG'"],
+            ["ASDFG turnip prices 603!!!", "opens an island with the dodo code 'ASDFG' and the comment 'turnip prices 603!!!'"]
+        ],
     execute(message, args)
     {
         if(args.length < 1)

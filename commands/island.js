@@ -3,7 +3,12 @@ module.exports =
 {
     name: "island",
     usage: "your-island-name",
-    description: "Sets your island name",
+    description: "Sets or updates your island name. Without an island name I will tell you your current island name",
+    example: [
+        ["", "returns your current island name"],
+        ["Winterland", "sets your island name to 'Winterland'"],
+        ["Isla Corgi", "sets your name to 'Isla Corgi"]
+    ],
     execute(message, args)
     {
         if(args.length < 1)
