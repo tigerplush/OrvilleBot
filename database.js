@@ -7,55 +7,28 @@ const openIslands = new Datastore(databasepath + "/" + openislandsdb);
 const userInfo = new Datastore(databasepath + "/" + userinfodb);
 module.exports =
 {
-    loadDatabases(client)
+    loadDatabases()
     {
         airports.loadDatabase();
-        airports.find({}, function(err, docs)
-        {
-            docs.forEach(airport => {
-                client.airports.set(airport.serverid, airport.channelid);
-            });
-        });
-
         openIslands.loadDatabase();
-        openIslands.find({}, function(err, docs)
-        {
-            docs.forEach(openIsland => {
-                //retrieve airport
-                let channelid = client.airports.get(openIsland.serverid);
-                //retrieve channel where message was posted
-                client.channels.fetch(channelid)
-                .then(channel => {
-                    channel.messages.fetch(openIsland.messageid)
-                    .then( message => {
-                        let newIsland = {};
-                        newIsland.arrival_message = message;
-            
-                        let user = new Discord.Collection();
-                        user.set(openIsland.userid, newIsland);
-                        client.openIslands.set(openIsland.serverid, user);
-                    })
-                    .catch(console.log("Couldn't find the open island message, somebody must have deleted it"));
-                })
-                .catch(console.log("Couldn't find the channel in the cache, the bot must have been kicked from the server"));
-                              
-            });
-        });
-
         userInfo.loadDatabase();
-        userInfo.find({}, function(err, docs)
+    },
+
+    getAirport(serverid)
+    {
+        return new Promise((resolve, reject) =>
         {
-            docs.forEach(user => 
+            airports.find({serverid: serverid}, function(err, docs)
+            {
+                if(docs && docs.length > 0)
                 {
-                    const userInfo =
-                    {
-                        name: user.name,
-                        island: user.island
-                    }
-                    const userCollection = new Discord.Collection();
-                    userCollection.set(user.userid, userInfo);
-                    client.userInfo.set(user.serverid, userCollection);
-                });
+                    resolve(docs[0]);
+                }
+                else
+                {
+                    reject("No airport found");
+                }
+            });
         });
     },
 
@@ -72,28 +45,46 @@ module.exports =
                     function (){});
             }
             else
-            {            
+            {
                 airports.insert(airport);
             }
         })
     },
 
-    openIsland(islandData)
+    getOpenIsland(serverid, userid)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            openIslands.find({serverid: serverid, userid: userid}, function(err, docs)
+            {
+                if(docs && docs.length > 0)
+                {
+                    resolve(docs[0]);
+                }
+                else
+                {
+                    reject("No open island found");
+                }
+            });
+        });
+    },
+
+    openIsland(island)
     {
         openIslands.insert(
             {
-                serverid: islandData.guildid,
-                userid: islandData.userid,
-                messageid: islandData.arrivalMessage.id
-            });   
+                serverid: island.serverid,
+                userid: island.userid,
+                messageid: island.arrivalMessageId
+            });
     },
 
-    closeIsland(islandData)
+    closeIsland(island)
     {
         openIslands.remove(
             {
-                serverid: islandData.guildid,
-                userid: islandData.userid
+                serverid: island.serverid,
+                userid: island.userid
             });
     },
 
@@ -120,12 +111,31 @@ module.exports =
                         {$set: {island: userData.island}},
                         {},
                         function (){});
-                    }                
+                    }
                 }
                 else
-                {            
+                {
                     userInfo.insert(userData);
                 }
             });
+    },
+    getUser(serverid, userid)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            userInfo.find(
+                {serverid: serverid, userid: userid},
+                function(err, docs)
+                {
+                    if(docs && docs.length > 0)
+                    {
+                        resolve(docs[0]);
+                    }
+                    else
+                    {
+                        reject("No user with this server- or userid found");
+                    }
+                });
+        });
     }
 }

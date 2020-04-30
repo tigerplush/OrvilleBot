@@ -11,6 +11,8 @@ const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
+bot.database = database;
+
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 
@@ -19,12 +21,8 @@ for (const file of commandFiles) {
 	bot.commands.set(command.name, command);
 }
 
-bot.airports = new Discord.Collection();
-bot.openIslands = new Discord.Collection();
-bot.userInfo = new Discord.Collection();
-
 bot.on('updateAirports', airport => {
-    database.updateAirport(airport)
+    bot.database.updateAirport(airport)
 });
 
 bot.on('openIsland', island => {
@@ -38,13 +36,13 @@ bot.on('openIsland', island => {
     }
 });
 
-bot.on('closeIsland', islandData => {
-    database.closeIsland(islandData)
-    graphic.removeImage({serverid: islandData.guildid, userid: islandData.userid});
+bot.on('closeIsland', island => {
+    bot.database.closeIsland(island);
+    graphic.removeImage({serverid: island.serverid, userid: island.userid});
 });
 
 bot.on('userUpdate', userData => {
-    database.updateUserData(userData)
+    bot.database.updateUserData(userData)
 });
 
 bot.on('requestSent', (island) => {
@@ -59,18 +57,26 @@ bot.on('fetchedUrl', (island) => {
     {
         attachment = new Discord.MessageAttachment(Buffer.from(island.baseUrl));
     }
-    bot.channels.cache.get(bot.airports.get(island.serverid)).send(arrivalMessageContent, attachment)
-    .then(graphMessage => 
-        {
-            island.arrivalMessage = graphMessage;
-        })
+    bot.database.getAirport(island.serverid)
+    .then(airport => {
+        bot.channels.fetch(airport.channelid)
+        .then(channel =>
+            {
+                channel.send(arrivalMessageContent, attachment)
+                .then(graphMessage =>
+                    {
+                        island.arrivalMessageId = graphMessage.id;
+                        database.openIsland(island);
+                    })
+                .catch(err => console.log(err));
+            })
+        .catch(err => console.log(err));
+    })
     .catch(err => console.log(err));
-    
-    //database.openIsland(islandData);
 });
 
 bot.on('ready', () => {
-    database.loadDatabases(bot);
+    bot.database.loadDatabases();
 });
 
 bot.on('message', message => {

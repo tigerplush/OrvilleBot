@@ -11,39 +11,50 @@ module.exports =
     ],
     execute(message, args)
     {
+        const database = message.client.database;
+        const serverid = message.guild.id;
+        const userid = message.author.id;
+
         if(args.length < 1)
         {
-            message.reply("please add your island name!");
-            return;
+            database.getUser(serverid, userid)
+            .then(user => {
+                if(user.island)
+                {
+                    message.reply(" your island name is currently '" + user.island + "'");
+                }
+                else
+                {
+                    throw new Error("404 - Island not found");
+                }
+            })
+            .catch(err => {
+                message.reply(" you have not set your island name yet");
+                console.log(err);
+            });
         }
+        else
+        {
+            const islandName = args.join(' ');
+            database.getUser(serverid, userid)
+            .then(user =>
+                {
+                    if(user.island)
+                    {
+                        message.reply(" I've updated your island name to '" + islandName + "'");
+                    }
+                    else
+                    {
+                        throw new Error("404 - Island not found");
+                    }
+                })
+            .catch(err =>
+                {
+                    message.reply(" I've set your island name to '" + islandName + "'");
+                    console.log(err);
+                });
 
-        const guildid = message.guild.id;
-        const serverInfo = message.client.userInfo
-        let userCollection;
-        if(serverInfo.has(guildid))
-        {
-            userCollection = serverInfo.get(guildid);
+            message.client.emit('userUpdate', {serverid: serverid, userid: userid, island: islandName});
         }
-        else
-        {
-            userCollection = new Discord.Collection();
-            serverInfo.set(guildid, userCollection);
-        }
-        
-        const userid = message.author.id;
-        let userInfo;
-        if(userCollection.has(userid))
-        {
-            userInfo = userCollection.get(userid);
-        }
-        else
-        {
-            userInfo = {};
-            userCollection.set(userid, userInfo);
-        }
-        userInfo.island = args.join(' ');
-        message.reply(" your island name is now " + userInfo.island);
-        
-        message.client.emit('userUpdate', {serverid: guildid, userid: userid, island: userInfo.island});
     }
 };

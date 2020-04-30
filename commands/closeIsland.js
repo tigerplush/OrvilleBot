@@ -9,26 +9,61 @@ module.exports =
         ],
     execute(message, args)
     {
-        const bot = message.client;
-        const guildid = message.guild.id;
+        const client = message.client;
+        const database = client.database;
+        const serverid = message.guild.id;
         const userid = message.author.id;
-        let island = bot.openIslands.get(guildid).get(userid);
-        if(island)
-        {
-            closingMessage = "now closing your island";
-            if(island.island_name)
+
+        database.getOpenIsland(serverid, userid)
+        .then(island =>
             {
-                closingMessage += " " + island.island_name;
-            }
-            message.reply(closingMessage);
-            bot.openIslands.get(guildid).delete(userid);
-            island.arrivalMessage.delete()
-            .catch(err => console.log(err));
-            bot.emit('closeIsland', {guildid: guildid, userid: userid});
-        }
-        else
-        {
-            message.reply("you currently have no open island");
-        }
+                let closingMessage = "now closing your island";
+                database.getUser(serverid, userid)
+                .then(user =>
+                    {
+                        if(user.island)
+                        {
+                            closingMessage += " " + user.island;
+                        }
+                        return closingMessage;
+                    })
+                .catch(err => console.log(err))
+                .then(closingMessage => message.reply(closingMessage));
+
+                deleteIslandMessage(client, serverid, island.messageid);
+
+                client.emit('closeIsland', {serverid: serverid, userid: userid});
+            })
+        .catch(err =>
+            {
+                message.reply("you currently have no open island");
+                console.log(err + " for server " + serverid + " and user " + userid);
+            });
     },
 };
+
+function deleteIslandMessage(client, serverid, messageid)
+{
+    const database = client.database;
+
+    database.getAirport(serverid)
+    .then(airport =>
+        {
+            client.channels.fetch(airport.channelid)
+            .then(channel =>
+                {
+                    channel.messages.fetch(messageid)
+                    .then(message =>
+                        {
+                            message.delete()
+                            .catch(err => console.log(err));
+                        })
+                    .catch(() =>
+                        {
+                            console.log("Could not find arrival message, must have already been deleted");
+                        });
+                })
+            .catch(() => console.log("Could not find airport channel, must have been deleted"));
+        })
+    .catch(err => console.log(err));
+}
