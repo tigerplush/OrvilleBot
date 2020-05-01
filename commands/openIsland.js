@@ -80,6 +80,8 @@ function createIsland(message, dodoCode, comment)
             if(!user)
             {
                 user = {};
+                user.serverid = serverid;
+                user.userid = userid;
             }
             user.dodoCode = dodoCode;
             user.title = comment;
