@@ -112,6 +112,15 @@ module.exports =
                         {},
                         function (){});
                     }
+                    
+                    if(userData.title)
+                    {
+                        userInfo.update(
+                        {serverid: userData.serverid, userid: userData.userid},
+                        {$set: {title: userData.title}},
+                        {},
+                        function (){});
+                    }
                 }
                 else
                 {
