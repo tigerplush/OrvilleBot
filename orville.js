@@ -41,7 +41,7 @@ bot.on('closeIsland', island => {
     graphic.removeImage(island);
 });
 
-bot.on('userUpdate', userData => {
+bot.on('islandUpdate', userData => {
     bot.database.updateUserData(userData)
 });
 

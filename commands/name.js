@@ -55,7 +55,7 @@ module.exports =
                     message.reply(" I've set your ingame name to '" + name + "'");
                     console.log(err);
                 });
-            message.client.emit('userUpdate', {serverid: serverid, userid: userid, name: name});
+            message.client.emit('islandUpdate', {serverid: serverid, userid: userid, name: name});
         }
     },
 };

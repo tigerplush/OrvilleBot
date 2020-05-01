@@ -54,7 +54,7 @@ module.exports =
                     console.log(err);
                 });
 
-            message.client.emit('userUpdate', {serverid: serverid, userid: userid, island: islandName});
+            message.client.emit('islandUpdate', {serverid: serverid, userid: userid, island: islandName});
         }
     }
 };
