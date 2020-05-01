@@ -4,5 +4,5 @@
     ,"airportsdb": "airports.db"
     ,"openislandsdb": "openislands.db"
     ,"userinfodb": "userinfo.db"
-    ,"url": "http://127.0.0.1:3000"
+    ,"wilburAPIUrl": "http://127.0.0.1:3000"
 }

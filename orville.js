@@ -4,7 +4,7 @@ const auth = require('./auth.json');
 const Datastore = require('nedb');
 const database = require('./database.js');
 const graphic = require('./graphic.js');
-const {prefix, url} = require('./config.json');
+const {prefix, wilburAPIUrl} = require('./config.json');
 const content = require('./content.js');
 
 const bot = new Discord.Client();
@@ -26,7 +26,7 @@ bot.on('updateAirports', airport => {
 });
 
 bot.on('openIsland', island => {
-    if(url && url.length != 0)
+    if(wilburAPIUrl && wilburAPIUrl.length != 0)
     {
         graphic.requestImage(bot, island);
     }

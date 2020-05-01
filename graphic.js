@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const {url} = require('./config.json');
+const {wilburAPIUrl} = require('./config.json');
 
 module.exports =
 {
@@ -14,7 +14,7 @@ module.exports =
             body: JSON.stringify(island)
         }
 
-        fetch(url + '/create', options)
+        fetch(wilburAPIUrl + '/create', options)
             .then(res => res.json())
             .then(console.log("image requested"))
             .catch(err => console.log(err))
@@ -31,7 +31,7 @@ module.exports =
             body: JSON.stringify(island)
         }
 
-        fetch(url + '/remove', options)
+        fetch(wilburAPIUrl + '/remove', options)
             .then(res => res.json())
             .catch(err => console.log(err));
     },
@@ -46,7 +46,7 @@ module.exports =
             body: JSON.stringify(island)
         }
 
-        fetch(url + '/fetch', options)
+        fetch(wilburAPIUrl + '/fetch', options)
         .then(response => response.json())
         .then(json => {
             island.baseUrl = json.dataURL;
