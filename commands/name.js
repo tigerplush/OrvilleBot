@@ -57,34 +57,5 @@ module.exports =
                 });
             message.client.emit('userUpdate', {serverid: serverid, userid: userid, name: name});
         }
-
-    //     const guildid = message.guild.id;
-    //     const serverInfo = message.client.userInfo
-    //     let userCollection;
-    //     if(serverInfo.has(guildid))
-    //     {
-    //         userCollection = serverInfo.get(guildid);
-    //     }
-    //     else
-    //     {
-    //         userCollection = new Discord.Collection();
-    //         serverInfo.set(guildid, userCollection);
-    //     }
-        
-    //     const userid = message.author.id;
-    //     let userInfo;
-    //     if(userCollection.has(userid))
-    //     {
-    //         userInfo = userCollection.get(userid);
-    //     }
-    //     else
-    //     {
-    //         userInfo = {};
-    //         userCollection.set(userid, userInfo);
-    //     }
-    //     userInfo.name = args.join(' ');
-    //     message.reply(" your ingame name is now " + userInfo.name);
-        
-    //     message.client.emit('userUpdate', {serverid: guildid, userid: userid, name: userInfo.name});
     },
 };
