@@ -5,4 +5,5 @@
     ,"openislandsdb": "openislands.db"
     ,"userinfodb": "userinfo.db"
     ,"wilburAPIUrl": "http://127.0.0.1:3000"
+    ,"turnipUrl": "https://turnip.exchange/island/"
 }

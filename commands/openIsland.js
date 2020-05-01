@@ -1,31 +1,53 @@
+const {turnipUrl} = require('../config.json');
 
 module.exports =
 {
     name: "open",
-    usage: "dodo-code (comment)",
-    description: "Opens your island. Dodo code is mandatory, comments (e.g. for turnip prices or diy recipes) is optional",
+    usage: "dodo-code/turnip.exchange-code/turnip.exchange-link (comment)",
+    description: "Opens your island. Dodo code, turnip.exchange code or turnip.exchange link is mandatory, comments (e.g. for turnip prices or diy recipes) is optional",
     example:
         [
             ["ASDFG", "opens an island with the dodo code 'ASDFG'"],
-            ["ASDFG turnip prices 603!!!", "opens an island with the dodo code 'ASDFG' and the comment 'turnip prices 603!!!'"]
+            ["ASDFG turnip prices 603!!!", "opens an island with the dodo code 'ASDFG' and the comment 'turnip prices 603!!!'"],
+            ["a263f37c", "opens an island with the turnip exchange link pointing to https://turnip.exchange/island/a263f37c"],
+            ["https://turnip.exchange/island/a263f37c turnip prices 603!!!", "opens an island with the turnip exchange link pointing to https://turnip.exchange/island/a263f37c and the comment 'turnip prices 603!!!'"]
         ],
     execute(message, args)
     {
         // check if the dodo code is there
         if(args.length < 1)
         {
-            message.reply("Please provide a dodo code!")
+            message.reply("Please provide a dodo code, turnip.exchange code or a turnip.exchange link!");
             return;
         }
 
-        // check if the dodo code is valid
-        let dodoCode = args.shift();
-        if(! /^([a-zA-Z0-9_-]){5}$/.test(dodoCode))
+        let code;
+        let type;
+        const input = args.shift();
+        //check if the input is valid
+        if(/^([a-zA-Z0-9_-]){5}$/.test(input))
         {
-            message.reply("Your dodo code is invalid!");
+            //valid dodo code
+            code = input.toUpperCase();
+            type = "dodo";
+        }
+        else if(/^([a-zA-Z0-9_-]){8}$/.test(input))
+        {
+            //valid turnip code
+            code = turnipUrl + input.toLowerCase();
+            type = "turnip.exchange";
+        }
+        else if(/(http(s)?:\/\/.)?(www\.)?turnip\.exchange\/island\/([a-zA-Z0-9]){8}$/.test(input))
+        {
+            //valid turnip.exchange link
+            code = input.toLowerCase();
+            type = "turnip.exchange";
+        }
+        else
+        {
+            message.reply("please provide a dodo code, turnip.exchange code or turnip.exchange link");
             return;
         }
-        dodoCode = dodoCode.toUpperCase();
 
         const bot = message.client;
         const database = bot.database;
@@ -48,7 +70,7 @@ module.exports =
             .then(airport =>
                 {
                     const comment = args.join(' ');
-                    createIsland(message, dodoCode, comment);
+                    createIsland(message, code, comment, type);
                 })
             .catch(err =>{
                 console.log(err);
@@ -58,7 +80,7 @@ module.exports =
     },
 };
 
-function createIsland(message, dodoCode, comment)
+function createIsland(message, dodoCode, comment, type)
 {
     const client = message.client;
     const database = client.database;
@@ -82,6 +104,7 @@ function createIsland(message, dodoCode, comment)
                 user.serverid = serverid;
                 user.userid = userid;
             }
+            user.type = type;
             user.dodoCode = dodoCode;
             user.comment = comment;
             client.emit('openIsland', user);

@@ -26,7 +26,7 @@ bot.on('updateAirports', airport => {
 });
 
 bot.on('openIsland', island => {
-    if(wilburAPIUrl && wilburAPIUrl.length != 0)
+    if(wilburAPIUrl && wilburAPIUrl.length != 0 && island.type === "dodo")
     {
         graphic.requestImage(bot, island);
     }
