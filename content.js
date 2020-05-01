@@ -14,9 +14,9 @@ module.exports =
         }
         arrivalMessageContent += ": **" + island.dodoCode + "**";
         
-        if(island.title)
+        if(island.comment)
         {
-            arrivalMessageContent += " (" + island.title + ")";
+            arrivalMessageContent += " (" + island.comment + ")";
         }
         return arrivalMessageContent;
     }

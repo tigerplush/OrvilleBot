@@ -83,7 +83,7 @@ function createIsland(message, dodoCode, comment)
                 user.userid = userid;
             }
             user.dodoCode = dodoCode;
-            user.title = comment;
+            user.comment = comment;
             client.emit('openIsland', user);
         });
 }
