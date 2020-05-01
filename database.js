@@ -26,7 +26,7 @@ module.exports =
                 }
                 else
                 {
-                    reject("No airport found");
+                    reject("No airport for server + " + serverid + " found");
                 }
             });
         });
