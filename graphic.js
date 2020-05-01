@@ -39,7 +39,7 @@ module.exports =
                 })
             .catch(err => console.log(err));
     },
-    getImageBaseUrl(client, island)
+    getImageBaseUrl(client, island, counter = 0)
     {
         const options = {
             method: 'POST',
@@ -49,12 +49,19 @@ module.exports =
             },
             body: JSON.stringify(island)
         }
-
+        console.log("Trying to fetch, number of tries: " + counter);
         fetch(wilburAPIUrl + '/fetch', options)
         .then(response => response.json())
         .then(json => {
-            island.baseUrl = json.dataURL;
-            client.emit('fetchedUrl', island);
+            if(json.status || counter > 3)
+            {
+                island.baseUrl = json.dataURL;
+                client.emit('fetchedUrl', island);
+            }
+            else
+            {
+                setTimeout(this.getImageBaseUrl, 500, client, island, ++counter);
+            }
         })
         .catch(err => console.log(err));
     }
