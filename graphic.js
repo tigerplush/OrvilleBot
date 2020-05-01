@@ -33,6 +33,10 @@ module.exports =
 
         fetch(wilburAPIUrl + '/remove', options)
             .then(res => res.json())
+            .then(json =>
+                {
+                console.log('Removing image for user ' + island.userid + ' on server ' + island.serverid + ': ' + json.status);
+                })
             .catch(err => console.log(err));
     },
     getImageBaseUrl(client, island)
