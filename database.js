@@ -136,6 +136,10 @@ module.exports =
                 {serverid: serverid, userid: userid},
                 function(err, docs)
                 {
+                    if(err)
+                    {
+                        reject(err);
+                    }
                     if(docs && docs.length > 0)
                     {
                         resolve(docs[0]);
