@@ -56,13 +56,13 @@ module.exports =
             if(json.status || counter > 3)
             {
                 island.baseUrl = json.dataURL;
-                client.emit('fetchedUrl', island);
             }
             else
             {
                 setTimeout(this.getImageBaseUrl, 500, client, island, ++counter);
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log(err))
+        .finally(client.emit('fetchedUrl', island));
     }
 }
