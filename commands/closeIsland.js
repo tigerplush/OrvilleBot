@@ -27,7 +27,11 @@ module.exports =
                         }
                         return closingMessage;
                     })
-                .catch(err => console.log(err))
+                .catch(err =>
+                    {
+                        console.log(err);
+                        return closingMessage;
+                    })
                 .then(closingMessage => message.reply(closingMessage));
 
                 deleteIslandMessage(client, serverid, island.messageid);
