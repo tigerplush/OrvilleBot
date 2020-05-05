@@ -150,5 +150,53 @@ module.exports =
                     }
                 });
         });
+    },
+    deleteUser(serverid, userid)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            userInfo.remove({serverid: serverid, userid: userid}, function(err, numberOfDeletes)
+            {
+                if(err)
+                {
+                    reject(err);
+                }
+                resolve(numberOfDeletes);
+            });
+        });
+    },
+    deleteProperty(serverid, userid, prop)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            userInfo.find({serverid, userid}, function(err, docs)
+            {
+                if(err)
+                {
+                    reject(err);
+                }
+                if(docs && docs.length > 0)
+                {
+                    user = docs[0];
+                    delete user[prop];
+                    userInfo.update(
+                        {serverid: serverid, userid: userid},
+                        user,
+                        {},
+                        function(err, numberOfUpdates)
+                        {
+                            if(err)
+                            {
+                                reject(err);
+                            }
+                            resolve(numberOfUpdates);
+                        });
+                }
+                else
+                {
+                    reject(err);
+                }
+            });
+        });
     }
 }
