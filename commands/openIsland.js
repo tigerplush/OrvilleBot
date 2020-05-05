@@ -57,24 +57,26 @@ module.exports =
 
         //check if user has an island open
         database.getOpenIsland(serverid, userid)
-        .then(island => {
-            //yes
-            // todo: update island ? update comment? update dodo code?
-            message.reply("you already have an island open");
-        })
-        .catch(err =>{
-            // no open island
-            console.log(err);
-            //fetch airport channel
-            database.getAirport(serverid)
-            .then(airport =>
-                {
-                    const comment = args.join(' ');
-                    createIsland(message, code, comment, type);
-                })
-            .catch(err =>{
+        .then(island =>
+            {
+                //yes
+                // todo: update island ? update comment? update dodo code?
+                message.reply("you already have an island open");
+            })
+        .catch(err =>
+            {
+                // no open island
                 console.log(err);
-                message.reply("I couldn't find an open airport for your server. Please ask an admin to create one");
+                //fetch airport channel
+                database.getAirport(serverid)
+                .then(airport =>
+                    {
+                        const comment = args.join(' ');
+                        createIsland(message, code, comment, type);
+                    })
+                .catch(err =>{
+                    console.log(err);
+                    message.reply("I couldn't find an open airport for your server. Please ask an admin to create one");
             });
         });
     },

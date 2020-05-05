@@ -68,13 +68,48 @@ module.exports =
         });
     },
 
+    findAllOpenIslands()
+    {
+        return new Promise((resolve, reject) => 
+        {
+            openIslands.find({}, function(err, docs)
+            {
+                if(err)
+                {
+                    reject(err);
+                }
+                resolve(docs);
+            });
+        });
+    },
+
+    renewLease(island, timestamp)
+    {
+        openIslands.update(
+            {serverid: island.serverid, userid: island.userid},
+            {$set: {timestamp: timestamp, warning: false}},
+            {},
+            function(){});
+    },
+
+    addWarning(island)
+    {
+        openIslands.update(
+            {serverid: island.serverid, userid: island.userid},
+            {$set: {warningmessageid: island.warningmessageid, warning: true}},
+            {},
+            function(){});
+    },
+
     openIsland(island)
     {
         openIslands.insert(
             {
                 serverid: island.serverid,
                 userid: island.userid,
-                messageid: island.arrivalMessageId
+                messageid: island.arrivalMessageId,
+                timestamp: island.timestamp,
+                warning: island.warning
             });
     },
 
@@ -111,7 +146,6 @@ module.exports =
                         {},
                         function (){});
                     }
-                    
                     if(userData.title)
                     {
                         userInfo.update(

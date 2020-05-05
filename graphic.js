@@ -20,6 +20,7 @@ module.exports =
             .catch(err => console.log(err))
             .finally(client.emit('requestSent', island));
     },
+
     removeImage(island)
     {
         const options = {
@@ -28,7 +29,7 @@ module.exports =
             {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(island)
+            body: JSON.stringify({serverid: island.serverid, userid: island.userid})
         }
 
         fetch(wilburAPIUrl + '/remove', options)
@@ -39,6 +40,7 @@ module.exports =
                 })
             .catch(err => console.log(err));
     },
+
     getImageBaseUrl(client, island, counter = 0)
     {
         const options = {

@@ -3,8 +3,12 @@ const Discord = require('discord.js');
 const auth = require('./auth.json');
 const database = require('./database.js');
 const graphic = require('./graphic.js');
-const {prefix, wilburAPIUrl} = require('./config.json');
+const {prefix, wilburAPIUrl, warningTime, closingTime} = require('./config.json');
 const content = require('./content.js');
+const message = require('./message.js');
+
+const cron = require('node-cron');
+const moment = require('moment');
 
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -13,12 +17,41 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 bot.database = database;
 
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
+    const command = require(`./commands/${file}`);
 
-	// set a new item in the Collection
-	// with the key as the command name and the value as the exported module
-	bot.commands.set(command.name, command);
+    // set a new item in the Collection
+    // with the key as the command name and the value as the exported module
+    bot.commands.set(command.name, command);
 }
+
+//check every 10 minutes
+cron.schedule("*/10 * * * *", () =>
+{
+    bot.database.findAllOpenIslands()
+    .then(islands =>
+        {
+            const warningDuration = moment.duration(warningTime);
+            const warning = moment().subtract(warningDuration);
+            const closingDuration = moment.duration(closingTime).add(warningDuration);
+            const closing = moment().subtract(closingDuration);
+            for(island of islands)
+            {
+                if(warning.diff(island.timestamp) > 0 && island.warning == false)
+                {
+                    // warn
+                    message.warn(bot, island);
+                    console.log("Warned user " + island.userid + " on server " + island.serverid);
+                }
+                if(closing.diff(island.timestamp) > 0)
+                {
+                    // close
+                    console.log("Closing island of user " + island.userid + " on server " + island.serverid);
+                    bot.emit('closeIsland', island);
+                }
+            }
+        })
+    .catch(err => console.log(err));
+});
 
 bot.on('updateAirports', airport => {
     bot.database.updateAirport(airport)
@@ -36,6 +69,7 @@ bot.on('openIsland', island => {
 });
 
 bot.on('closeIsland', island => {
+    message.deleteIslandMessage(bot, island)
     bot.database.closeIsland(island);
     graphic.removeImage(island);
 });
@@ -64,6 +98,8 @@ bot.on('fetchedUrl', (island) => {
                 channel.send(arrivalMessageContent, attachment)
                 .then(graphMessage =>
                     {
+                        island.warning = false;
+                        island.timestamp = Date.now();
                         island.arrivalMessageId = graphMessage.id;
                         database.openIsland(island);
                     })
@@ -72,6 +108,11 @@ bot.on('fetchedUrl', (island) => {
         .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
+});
+
+bot.on('renewLease', (island) => {
+    message.deleteWarningMessage(bot, island)
+    bot.database.renewLease(island, Date.now());
 });
 
 bot.on('ready', () => {

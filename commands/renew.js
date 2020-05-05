@@ -1,11 +1,11 @@
 module.exports =
 {
-    name: "close",
+    name: "renew",
     usage: "",
-    description: "Closes your currently open island",
+    description: "Renews the lease on your island for another 3h",
     example:
         [
-            ["", "closes your currently open island"]
+            ["", "renews the lease on your island for another 3h"]
         ],
     execute(message, args)
     {
@@ -17,13 +17,13 @@ module.exports =
         database.getOpenIsland(serverid, userid)
         .then(island =>
             {
-                let closingMessage = "now closing your island";
+                let closingMessage = "renewing your lease";
                 database.getUser(serverid, userid)
                 .then(user =>
                     {
                         if(user.island)
                         {
-                            closingMessage += " " + user.island;
+                            closingMessage += " for " + user.island;
                         }
                         return closingMessage;
                     })
@@ -32,9 +32,11 @@ module.exports =
                         console.log(err);
                         return closingMessage;
                     })
-                .then(closingMessage => message.reply(closingMessage));
-
-                client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid});
+                .then(closingMessage =>
+                    {
+                        message.reply(closingMessage);
+                        client.emit('renewLease', island);
+                    });
             })
         .catch(err =>
             {
