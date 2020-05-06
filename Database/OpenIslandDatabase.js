@@ -56,16 +56,18 @@ class OpenIslandDatabase extends Database
 
     warn(island)
     {
-        return super.update(
+        super.update(
             {serverid: island.serverid, userid: island.userid},
-            {warningmessageid: island.warningMessageId, warning: true});
+            {warningmessageid: island.warningMessageId, warning: true})
+            .catch(err => console.log(err));
     }
 
     renew(island)
     {
-        return super.update(
+        super.update(
             {serverid: island.serverid, userid: island.userid},
-            {timestamp: Date.now(), warning: false});
+            {timestamp: Date.now(), warning: false})
+            .catch(err => console.log(err));
         this.database.update(
             {serverid: island.serverid, userid: island.userid},
             {$unset: {warningmessageid: true}},
