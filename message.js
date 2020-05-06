@@ -1,5 +1,4 @@
-const {airportsDb, openIslandsDb, userDb} = require('./Database/databases.js');
-
+const {airportsDb, openIslandsDb} = require('./Database/databases.js');
 module.exports =
 {
     deleteIslandMessage(client, island)
