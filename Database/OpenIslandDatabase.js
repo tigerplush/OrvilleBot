@@ -1,6 +1,6 @@
 const Database = require('./Database.js');
 
-class IslandDatabase extends Database
+class OpenIslandDatabase extends Database
 {
     constructor(pathToDb, dbName)
     {
@@ -70,4 +70,4 @@ class IslandDatabase extends Database
     }
 }
 
-module.exports = IslandDatabase;
+module.exports = OpenIslandDatabase;
