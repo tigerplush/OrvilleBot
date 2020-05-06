@@ -1,4 +1,6 @@
+const moment = require('moment');
 const {airportsDb, openIslandsDb} = require('./Database/databases.js');
+const {closingTime} = require('./config.json');
 module.exports =
 {
     deleteIslandMessage(client, island)
@@ -44,7 +46,8 @@ module.exports =
                         deleteMessage(channel, island.warningmessageid);
 
                         //create new warning
-                        let warningMessage = "<@" + island.userid + "> your island is still open! I will close it automatically in 1h\n";
+                        const remainingTime = moment.duration(closingTime).humanize();
+                        let warningMessage = `<@${island.userid}> your island is still open! I will close it automatically in ${remainingTime}\n`;
                         warningMessage += "If you want to keep it open, renew your lease with `!orville renew` or close your island by yourself with `!orville close`";
                         channel.send(warningMessage)
                         .then(message =>
