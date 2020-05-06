@@ -1,4 +1,5 @@
 const {turnipUrl} = require('../config.json');
+const {airportsDb, openIslandsDb, userDb} = require('../Database/databases.js');
 
 module.exports =
 {
@@ -49,47 +50,48 @@ module.exports =
             return;
         }
 
-        const bot = message.client;
-        const database = bot.database;
-
         const serverid = message.guild.id;
         const userid = message.author.id;
 
         //check if user has an island open
-        database.getOpenIsland(serverid, userid)
+        openIslandsDb.get(serverid, userid)
         .then(island =>
             {
-                //yes
-                // todo: update island ? update comment? update dodo code?
-                message.reply("you already have an island open");
+                console.log(island);
+                if(island && island.length > 0)
+                {
+                    //yes
+                    // todo: update island ? update comment? update dodo code?
+                    message.reply("you already have an island open");
+                    return;
+                }
+                else
+                {
+                    // no open island
+                    //fetch airport channel
+                    airportsDb.getAirport(serverid)
+                    .then(airport =>
+                        {
+                            const comment = args.join(' ');
+                            createIsland(message, code, comment, type);
+                        })
+                    .catch(err =>{
+                        console.log(err);
+                        message.reply("I couldn't find an open airport for your server. Please ask an admin to create one");
+                    });
+                }
             })
-        .catch(err =>
-            {
-                // no open island
-                console.log(err);
-                //fetch airport channel
-                database.getAirport(serverid)
-                .then(airport =>
-                    {
-                        const comment = args.join(' ');
-                        createIsland(message, code, comment, type);
-                    })
-                .catch(err =>{
-                    console.log(err);
-                    message.reply("I couldn't find an open airport for your server. Please ask an admin to create one");
-            });
-        });
+        .catch(err => console.log(err));
     },
 };
 
 function createIsland(message, dodoCode, comment, type)
 {
     const client = message.client;
-    const database = client.database;
     const serverid = message.guild.id;
     const userid = message.author.id;
 
-    database.getUser(serverid, userid)
+    userDb.getUser(serverid, userid)
     .then(user =>
         {
             return user;

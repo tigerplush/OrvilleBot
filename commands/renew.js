@@ -1,3 +1,5 @@
+const {airportsDb, openIslandsDb, userDb} = require('../Database/databases.js');
+
 module.exports =
 {
     name: "renew",
@@ -10,15 +12,14 @@ module.exports =
     execute(message, args)
     {
         const client = message.client;
-        const database = client.database;
         const serverid = message.guild.id;
         const userid = message.author.id;
 
-        database.getOpenIsland(serverid, userid)
+        openIslandsDb.getIsland({serverid: serverid, userid: userid})
         .then(island =>
             {
                 let closingMessage = "renewing your lease";
-                database.getUser(serverid, userid)
+                userDb.getUser(serverid, userid)
                 .then(user =>
                     {
                         if(user.island)

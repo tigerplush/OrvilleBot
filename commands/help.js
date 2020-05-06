@@ -7,7 +7,7 @@ module.exports =
     execute(message, args)
     {
         const {commands} = message.client;
-        
+
         let answer = "";
         answer += "`" + prefix;
         if(!args.length)

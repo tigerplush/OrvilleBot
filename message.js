@@ -1,9 +1,10 @@
+const {airportsDb, openIslandsDb, userDb} = require('./Database/databases.js');
+
 module.exports =
 {
     deleteIslandMessage(client, island)
     {
-        const database = client.database;
-        database.getAirport(island.serverid)
+        airportsDb.getAirport(island.serverid)
         .then(airport =>
             {
                 client.channels.fetch(airport.channelid)
@@ -19,8 +20,7 @@ module.exports =
 
     deleteWarningMessage(client, island)
     {
-        const database = client.database;
-        database.getAirport(island.serverid)
+        airportsDb.getAirport(island.serverid)
         .then(airport =>
             {
                 client.channels.fetch(airport.channelid)
@@ -35,8 +35,7 @@ module.exports =
 
     warn(client, island)
     {
-        const database = client.database;
-        database.getAirport(island.serverid)
+        airportsDb.getAirport(island.serverid)
         .then(airport =>
             {
                 client.channels.fetch(airport.channelid)
@@ -60,8 +59,8 @@ module.exports =
                         channel.send(warningMessage)
                         .then(message =>
                             {
-                                island.warningmessageid = message.id;
-                                database.addWarning(island)
+                                island.warningMessageId = message.id;
+                                openIslandsDb.warn(island);
                             })
                         .catch(err => console.log(err));
                     })

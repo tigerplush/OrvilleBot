@@ -1,7 +1,7 @@
 module.exports =
 {
     create(island)
-    {        
+    {
         let arrivalMessageContent = "<@" + island.userid + ">";
         
         if(island.name)

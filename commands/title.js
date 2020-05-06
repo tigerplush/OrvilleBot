@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const {userDb} = require('../Database/databases.js');
 module.exports =
 {
     name: "title",
@@ -11,13 +11,12 @@ module.exports =
     ],
     execute(message, args)
     {
-        const database = message.client.database;
         const serverid = message.guild.id;
         const userid = message.author.id;
 
         if(args.length < 1)
         {
-            database.getUser(serverid, userid)
+            userDb.getUser(serverid, userid)
             .then(user => {
                 if(user.title)
                 {
@@ -36,10 +35,10 @@ module.exports =
         else
         {
             const title = args.join(' ');
-            database.getUser(serverid, userid)
+            userDb.getUser(serverid, userid)
             .then(user =>
                 {
-                    if(user.island)
+                    if(user.title)
                     {
                         message.reply(" I've updated your ingame title to '" + title + "'");
                     }

@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const {userDb} = require('../Database/databases.js');
 module.exports =
 {
     name: "reset",
@@ -14,11 +14,10 @@ module.exports =
     {
         const serverid = message.guild.id;
         const userid = message.author.id;
-        const database = message.client.database;
 
         if(args.length < 1)
         {
-            database.deleteUser(serverid, userid)
+            userDb.removeUser(serverid, userid)
             .then(numberOfDeletes =>
                 {
                     if(numberOfDeletes > 0)
@@ -37,10 +36,10 @@ module.exports =
             prop = args[0];
             if(prop === "island" || prop === "name" || prop === "title")
             {
-                database.deleteProperty(serverid, userid, prop)
-                .then(numberOfUpdates =>
+                userDb.removeProperty(serverid, userid, prop)
+                .then(propertyValue =>
                     {
-                        if(numberOfUpdates > 0)
+                        if(propertyValue)
                         {
                             message.reply("I deleted your " + prop + " from the database");
                         }

@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const {userDb} = require('../Database/databases.js');
 module.exports =
 {
     name: "name",
@@ -13,11 +13,10 @@ module.exports =
     {
         const serverid = message.guild.id;
         const userid = message.author.id;
-        const database = message.client.database;
 
         if(args.length < 1)
         {
-            database.getUser(serverid, userid)
+            userDb.getUser(serverid, userid)
             .then(user =>
                 {
                     if(user.name)
@@ -38,7 +37,7 @@ module.exports =
         else
         {
             const name = args.join(' ');
-            database.getUser(serverid, userid)
+            userDb.getUser(serverid, userid)
             .then(user =>
                 {
                     if(user.name)

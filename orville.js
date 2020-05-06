@@ -1,7 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const auth = require('./auth.json');
-const database = require('./database.js');
 const graphic = require('./graphic.js');
 const {prefix, wilburAPIUrl, warningTime, closingTime} = require('./config.json');
 const content = require('./content.js');
@@ -14,7 +13,7 @@ const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-bot.database = database;
+const {airportsDb, openIslandsDb, userDb} = require('./Database/databases.js');
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
@@ -27,7 +26,7 @@ for (const file of commandFiles) {
 //check every 10 minutes
 cron.schedule("*/10 * * * *", () =>
 {
-    bot.database.findAllOpenIslands()
+    openIslandsDb.getAll()
     .then(islands =>
         {
             const warningDuration = moment.duration(warningTime);
@@ -54,10 +53,11 @@ cron.schedule("*/10 * * * *", () =>
 });
 
 bot.on('updateAirports', airport => {
-    bot.database.updateAirport(airport)
+    airportsDb.addOrUpdate(airport)
 });
 
 bot.on('openIsland', island => {
+    console.log(island);
     if(wilburAPIUrl && wilburAPIUrl.length != 0 && island.type === "dodo")
     {
         graphic.requestImage(bot, island);
@@ -70,12 +70,13 @@ bot.on('openIsland', island => {
 
 bot.on('closeIsland', island => {
     message.deleteIslandMessage(bot, island)
-    bot.database.closeIsland(island);
+    openIslandsDb.close(island);
     graphic.removeImage(island);
 });
 
 bot.on('islandUpdate', userData => {
-    bot.database.updateUserData(userData)
+    userDb.addOrUpdate(userData)
+    .catch(err => console.log(err));
 });
 
 bot.on('requestSent', (island) => {
@@ -84,13 +85,13 @@ bot.on('requestSent', (island) => {
 
 bot.on('fetchedUrl', (island) => {
     const arrivalMessageContent = content.create(island);
-
+    console.log(island);
     let attachment;
     if(island.baseUrl)
     {
         attachment = new Discord.MessageAttachment(Buffer.from(island.baseUrl));
     }
-    bot.database.getAirport(island.serverid)
+    airportsDb.getAirport(island.serverid)
     .then(airport => {
         bot.channels.fetch(airport.channelid)
         .then(channel =>
@@ -101,7 +102,7 @@ bot.on('fetchedUrl', (island) => {
                         island.warning = false;
                         island.timestamp = Date.now();
                         island.arrivalMessageId = graphMessage.id;
-                        database.openIsland(island);
+                        openIslandsDb.open(island);
                     })
                 .catch(err => console.log(err));
             })
@@ -111,12 +112,11 @@ bot.on('fetchedUrl', (island) => {
 });
 
 bot.on('renewLease', (island) => {
-    message.deleteWarningMessage(bot, island)
-    bot.database.renewLease(island, Date.now());
+    message.deleteWarningMessage(bot, island);
+    openIslandsDb.renew(island);
 });
 
 bot.on('ready', () => {
-    bot.database.loadDatabases();
 });
 
 bot.on('message', message => {

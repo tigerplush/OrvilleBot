@@ -1,3 +1,5 @@
+const {airportsDb} = require('../Database/databases.js');
+
 module.exports =
 {
     name: "init-airport",
@@ -6,25 +8,30 @@ module.exports =
     description: "Initialises this channel as airport",
     execute(message, args)
     {
-        if(!message.member.permissions.has("ADMINISTRATOR "))
+        if(!message.member.permissions.has("ADMINISTRATOR" || "MANAGE_GUILD" || "MANAGE_CHANNELS"))
         {
             message.reply("You are not authorized to do this!")
             return;
         }
+
         const serverid = message.guild.id;
         const channelid = message.channel.id;
-        const airports = message.client.airports;
-        if(airports.has(serverid))
-        {
-            //there is an airport, so update
-            airports.get(serverid).channelid = channelid;
-        }
-        else
-        {
-            //it is a new update, so create
-            airports.set(serverid, channelid);
-        }
-        message.channel.send("Airport successfully opened");
-        message.client.emit('updateAirports', {serverid: serverid, channelid: channelid});
+
+        airportsDb.getAirport(serverid)
+        .then(airport =>
+            {
+                if(airport)
+                {
+                    //there is an airport, update
+                    message.channel.send("Airport successfully moved");
+                }
+                else
+                {
+                    //create new airport
+                    message.channel.send("Airport successfully opened");
+                }
+                message.client.emit('updateAirports', {serverid: serverid, channelid: channelid});
+            })
+        .catch(err => console.log(err));
     },
 };

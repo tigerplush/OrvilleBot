@@ -1,3 +1,5 @@
+const {openIslandsDb, userDb} = require('../Database/databases.js');
+
 module.exports =
 {
     name: "close",
@@ -10,35 +12,42 @@ module.exports =
     execute(message, args)
     {
         const client = message.client;
-        const database = client.database;
         const serverid = message.guild.id;
         const userid = message.author.id;
 
-        database.getOpenIsland(serverid, userid)
-        .then(island =>
+        openIslandsDb.get(serverid, userid)
+        .then(islands =>
             {
-                let closingMessage = "now closing your island";
-                database.getUser(serverid, userid)
-                .then(user =>
-                    {
-                        if(user.island)
+                console.log(islands);
+                if(islands && islands.length > 0)
+                {
+                    island = islands[0];
+                    let closingMessage = "now closing your island";
+                    userDb.get(serverid, userid)
+                    .then(user =>
                         {
-                            closingMessage += " " + user.island;
-                        }
-                        return closingMessage;
-                    })
-                .catch(err =>
-                    {
-                        console.log(err);
-                        return closingMessage;
-                    })
-                .then(closingMessage => message.reply(closingMessage));
+                            if(user.island)
+                            {
+                                closingMessage += " " + user.island;
+                            }
+                            return closingMessage;
+                        })
+                    .catch(err =>
+                        {
+                            console.log(err);
+                            return closingMessage;
+                        })
+                    .then(closingMessage => message.reply(closingMessage));
 
-                client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid});
+                    client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid});
+                }
+                else
+                {
+                    message.reply("you currently have no open island");
+                }
             })
         .catch(err =>
             {
-                message.reply("you currently have no open island");
                 console.log(err + " for server " + serverid + " and user " + userid);
             });
     },
