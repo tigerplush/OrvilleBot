@@ -72,14 +72,17 @@ module.exports =
 
 function deleteMessage(channel, messageid)
 {
-    channel.messages.fetch(messageid)
-    .then(message =>
-        {
-            message.delete()
-            .catch(err => console.log(err));
-        })
-    .catch(() =>
-        {
-            console.log("Could not find message, must have already been deleted");
-        });
+    if(messageid)
+    {
+        channel.messages.fetch(messageid)
+        .then(message =>
+            {
+                message.delete()
+                .catch(err => console.log(err));
+            })
+        .catch(() =>
+            {
+                console.log("Could not find message, must have already been deleted");
+            });
+    }
 }
