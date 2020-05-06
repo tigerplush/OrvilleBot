@@ -57,7 +57,6 @@ module.exports =
         openIslandsDb.get(serverid, userid)
         .then(island =>
             {
-                console.log(island);
                 if(island && island.length > 0)
                 {
                     //yes

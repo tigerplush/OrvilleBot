@@ -84,7 +84,6 @@ bot.on('requestSent', (island) => {
 
 bot.on('fetchedUrl', (island) => {
     const arrivalMessageContent = content.create(island);
-    console.log(island);
     let attachment;
     if(island.baseUrl)
     {
