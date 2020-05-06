@@ -41,7 +41,7 @@ module.exports =
             .catch(err => console.log(err));
     },
 
-    getImageBaseUrl(client, island, counter = 0)
+    getImageBaseUrl(client, island)
     {
         const options = {
             method: 'POST',
@@ -51,20 +51,50 @@ module.exports =
             },
             body: JSON.stringify(island)
         }
-        console.log("Trying to fetch, number of tries: " + counter);
-        fetch(wilburAPIUrl + '/fetch', options)
-        .then(response => response.json())
-        .then(json => {
-            if(json.status || counter > 3)
+
+        retryFetch(wilburAPIUrl + '/fetch', options, island)
+        .then(json =>
             {
-                island.baseUrl = json.dataURL;
-            }
-            else
+                return json.dataURL;
+            })
+        .catch(err =>
             {
-                setTimeout(this.getImageBaseUrl, 500, client, island, ++counter);
-            }
-        })
-        .catch(err => console.log(err))
-        .finally(client.emit('fetchedUrl', island));
+                console.log(err);
+                return;
+            })
+        .then(dataUrl =>
+            {
+                island.baseUrl = dataUrl;
+                client.emit('fetchedUrl', island);
+            });
     }
+}
+
+function retryFetch(url, options, island, numberOfRetries = 3)
+{
+    console.log(`Trying to fetch baseUrl for user ${island.userid} on server ${island.serverid}, number of retries left: ${numberOfRetries}`);
+    return new Promise((resolve, reject) =>
+    {
+        fetch(url, options)
+        .then(response => response.json())
+        .then(json =>
+            {
+                if(json.status)
+                {
+                    resolve(json);
+                }
+                else
+                {
+                    throw new Error(`baseUrl for user ${island.userid} on server ${island.serverid} not yet available`);
+                }
+            })
+        .catch(err =>
+            {
+                if(n === -1)
+                {
+                    reject(err);
+                }
+                resolve(retryFetch(url, options, --numberOfRetries));
+            });
+    });
 }
