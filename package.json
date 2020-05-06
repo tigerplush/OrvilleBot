@@ -3,7 +3,12 @@
   "version": "3.3.0",
   "description": "A discord bot who will manage and show open animal crossing islands",
   "main": "orville.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tigerplush/villagerdb-api.git"
+  },
   "author": "Christopher 'Tiger' Putz",
+  "license": "ISC",
   "github": "https://github.com/tigerplush/OrvilleBot",
   "dependencies": {
     "discord.js": "^12.2.0",
