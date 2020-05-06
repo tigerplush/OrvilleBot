@@ -18,7 +18,6 @@ module.exports =
         openIslandsDb.get(serverid, userid)
         .then(islands =>
             {
-                console.log(islands);
                 if(islands && islands.length > 0)
                 {
                     island = islands[0];
@@ -39,7 +38,7 @@ module.exports =
                         })
                     .then(closingMessage => message.reply(closingMessage));
 
-                    client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid});
+                    client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid, warningmessageid: island.warningmessageid});
                 }
                 else
                 {

@@ -58,7 +58,7 @@ class OpenIslandDatabase extends Database
     {
         super.update(
             {serverid: island.serverid, userid: island.userid},
-            {warningmessageid: island.warningMessageId, warning: true})
+            {warningmessageid: island.warningmessageid, warning: true})
             .catch(err => console.log(err));
     }
 

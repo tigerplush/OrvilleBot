@@ -52,7 +52,7 @@ module.exports =
                         channel.send(warningMessage)
                         .then(message =>
                             {
-                                island.warningMessageId = message.id;
+                                island.warningmessageid = message.id;
                                 openIslandsDb.warn(island);
                             })
                         .catch(err => console.log(err));
