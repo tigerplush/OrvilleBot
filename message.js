@@ -42,16 +42,7 @@ module.exports =
                 .then(channel =>
                     {
                         //delete old warning
-                        channel.messages.fetch(island.warningmessageid)
-                        .then(message =>
-                            {
-                                message.delete()
-                                .catch(err => console.log(err));
-                            })
-                        .catch(() =>
-                            {
-                                console.log("Could not find warning message, must have already been deleted/not existed at all");
-                            });
+                        deleteMessage(channel, island.warningmessageid);
 
                         //create new warning
                         let warningMessage = "<@" + island.userid + "> your island is still open! I will close it automatically in 1h\n";
