@@ -41,8 +41,7 @@ class OpenIslandDatabase extends Database
             userid: island.userid,
             messageid: island.arrivalMessageId,
             timestamp: island.timestamp,
-            warning: false,
-            warningmessageid: ""
+            warning: false
         });
     }
 
@@ -67,6 +66,15 @@ class OpenIslandDatabase extends Database
         return super.update(
             {serverid: island.serverid, userid: island.userid},
             {timestamp: Date.now(), warning: false});
+        this.database.update(
+            {serverid: island.serverid, userid: island.userid},
+            {$unset: {warningmessageid: true}},
+            {},
+            function(err)
+            {
+                console.log(err);
+            }
+        );
     }
 }
 
