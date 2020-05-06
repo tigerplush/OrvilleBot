@@ -6,6 +6,6 @@
     ,"userinfodb": "userinfo.db"
     ,"wilburAPIUrl": "http://62.75.251.202:3000"
     ,"turnipUrl": "https://turnip.exchange/island/"
-    ,"warningTime": "00:00:15"
-    ,"closingTime": "00:00:15"
+    ,"warningTime": "02:00:00"
+    ,"closingTime": "01:00:00"
 }
