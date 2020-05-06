@@ -16,7 +16,7 @@ module.exports =
 
         fetch(wilburAPIUrl + '/create', options)
             .then(res => res.json())
-            .then(console.log("image requested"))
+            .then(console.log(`image for user ${island.userid} from server ${island.serverid} requested`))
             .catch(err => console.log(err))
             .finally(client.emit('requestSent', island));
     },
