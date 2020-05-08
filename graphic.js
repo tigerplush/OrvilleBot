@@ -90,7 +90,7 @@ function retryFetch(url, options, island, numberOfRetries = 3)
             })
         .catch(err =>
             {
-                if(n === -1)
+                if(numberOfRetries === -1)
                 {
                     reject(err);
                 }
