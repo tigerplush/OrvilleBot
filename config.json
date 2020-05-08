@@ -8,4 +8,10 @@
     ,"turnipUrl": "https://turnip.exchange/island/"
     ,"warningTime": "02:00:00"
     ,"closingTime": "01:00:00"
+    ,"ping":
+        {
+            "word": "turnip",
+            "threshold": 400,
+            "role": "BigBells"
+        }
 }

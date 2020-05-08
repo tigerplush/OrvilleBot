@@ -18,6 +18,11 @@ module.exports =
         {
             arrivalMessageContent += " (" + island.comment + ")";
         }
+
+        if(island.ping)
+        {
+            arrivalMessageContent += ` <@&${island.ping}>`;
+        }
         return arrivalMessageContent;
     }
 }

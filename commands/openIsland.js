@@ -1,4 +1,4 @@
-const {turnipUrl} = require('../config.json');
+const {turnipUrl, ping} = require('../config.json');
 const {airportsDb, openIslandsDb, userDb} = require('../Database/databases.js');
 
 module.exports =
@@ -80,6 +80,19 @@ module.exports =
                                 }
                                 else
                                 {
+                                    const codeword = comment.match(new RegExp(ping.word, "i"));
+                                    const threshold = args.filter(word =>
+                                        {
+                                            if(Number(word) && Number(word) >= ping.threshold)
+                                            {
+                                                return Number(word);
+                                            }
+                                        });
+                                    if(codeword && codeword.length > 0 && threshold && threshold.length > 0)
+                                    {
+                                        const pingRole = message.guild.roles.cache.find(role => role.name === ping.role);
+                                        island.ping = pingRole.id;
+                                    }
                                     message.client.emit('openIsland', island);
                                 }
                             });
