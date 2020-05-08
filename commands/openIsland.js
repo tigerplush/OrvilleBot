@@ -72,7 +72,17 @@ module.exports =
                     .then(airport =>
                         {
                             const comment = args.join(' ');
-                            createIsland(message, code, comment, type);
+                            createIsland(serverid, userid, code, comment, type, function(err, island)
+                            {
+                                if(err)
+                                {
+                                    console.log(err);
+                                }
+                                else
+                                {
+                                    message.client.emit('openIsland', island);
+                                }
+                            });
                         })
                     .catch(err =>{
                         console.log(err);
@@ -84,12 +94,24 @@ module.exports =
     },
 };
 
-function createIsland(message, dodoCode, comment, type)
-{
-    const client = message.client;
-    const serverid = message.guild.id;
-    const userid = message.author.id;
+/**
+ * Callback for creating an island
+ * @callback createIslandCallback
+ * @param {*} err 
+ * @param {*} island 
+ */
 
+/**
+ * 
+ * @param {*} serverid 
+ * @param {*} userid 
+ * @param {*} dodoCode 
+ * @param {*} comment 
+ * @param {*} type 
+ * @param {createIslandCallback} callback callback, signature err, island
+ */
+function createIsland(serverid, userid, dodoCode, comment, type, callback)
+{
     userDb.getUser(serverid, userid)
     .then(user =>
         {
@@ -97,19 +119,20 @@ function createIsland(message, dodoCode, comment, type)
         })
     .catch(err =>
         {
+            callback(err, undefined);
             console.log(err);
         })
-    .then(user =>
+    .then(island =>
         {
-            if(!user)
+            if(!island)
             {
-                user = {};
-                user.serverid = serverid;
-                user.userid = userid;
+                island = {};
+                island.serverid = serverid;
+                island.userid = userid;
             }
-            user.type = type;
-            user.dodoCode = dodoCode;
-            user.comment = comment;
-            client.emit('openIsland', user);
+            island.type = type;
+            island.dodoCode = dodoCode;
+            island.comment = comment;
+            callback(undefined, island);
         });
 }
