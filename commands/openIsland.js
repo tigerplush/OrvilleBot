@@ -77,6 +77,7 @@ module.exports =
                                 if(err)
                                 {
                                     console.log(err);
+                                    message.reply("there is an error in the database, please contact an admin to fix that");
                                 }
                                 else
                                 {
@@ -125,27 +126,26 @@ module.exports =
  */
 function createIsland(serverid, userid, dodoCode, comment, type, callback)
 {
-    userDb.getUser(serverid, userid)
-    .then(user =>
+    userDb.get({serverid: serverid, userid: userid})
+    .then(docs =>
         {
-            return user;
+            let island = {};
+            if(docs && docs.length)
+            {
+                island = docs[0];
+            }
+            else
+            {
+                island.serverid = serverid;
+                island.userid = userid;
+            }
+            island.dodoCode = dodoCode;
+            island.comment = comment;
+            island.type = type;
+            callback(undefined, island);
         })
     .catch(err =>
         {
             callback(err, undefined);
-            console.log(err);
-        })
-    .then(island =>
-        {
-            if(!island)
-            {
-                island = {};
-                island.serverid = serverid;
-                island.userid = userid;
-            }
-            island.type = type;
-            island.dodoCode = dodoCode;
-            island.comment = comment;
-            callback(undefined, island);
         });
 }
