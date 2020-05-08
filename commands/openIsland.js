@@ -92,7 +92,10 @@ module.exports =
                                     if(codeword && codeword.length > 0 && threshold && threshold.length > 0)
                                     {
                                         const pingRole = message.guild.roles.cache.find(role => role.name === ping.role);
-                                        island.ping = pingRole.id;
+                                        if(pingRole)
+                                        {
+                                            island.ping = pingRole.id;
+                                        }
                                     }
                                     message.client.emit('openIsland', island);
                                 }
