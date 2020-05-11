@@ -181,7 +181,7 @@ bot.on('messageReactionAdd', (messageReaction, user) => {
     .then(queue =>
         {
             //this reaction was on a dm queue message, query next queue user
-            queueUserManager.next(queue);
+            queueUserManager.next(queue, guild);
         })
     .catch(err => console.log(err));
 });
@@ -208,7 +208,7 @@ bot.on('messageReactionRemove', (messageReaction, user) => {
     .then(queue =>
         {
             //this reaction was on a dm queue message, query next queue user
-            queueUserManager.next(queue);
+            queueUserManager.next(queue, guild);
         })
     .catch(err => console.log(err));
 });

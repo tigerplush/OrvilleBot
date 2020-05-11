@@ -139,7 +139,7 @@ class QueueUserManager
         this.updateQueuePost(queue, guild);
     }
 
-    next(queue)
+    next(queue, guild)
     {
         //find all users for a queue
         queuedUsersDb.get({queueid: queue._id})
@@ -147,7 +147,7 @@ class QueueUserManager
             {
                 if(docs && docs.length > 0)
                 {
-                    this.remove(docs[0].userid, queue);
+                    this.remove(docs[0].userid, queue, guild);
                 }
             })
         .catch(err => console.log(err));
