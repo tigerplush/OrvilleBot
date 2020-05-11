@@ -33,6 +33,56 @@ class QueueUserManager
         .catch(err => console.log(err))
     }
 
+    removeAll(queue)
+    {
+        queuedUsersDb.get({queueid: queue._id})
+        .then(queuedUsers =>
+            {
+                console.log(queuedUsers);
+                if(queuedUsers && queuedUsers.length > 0)
+                {
+                    const removalPromises = queuedUsers.map(user => this.removeWithoutUpdate(user));
+                    Promise.all(removalPromises)
+                    .catch(err => console.log(err));
+                }
+            })
+        .catch(err => console.log(err));
+    }
+
+    removeWithoutUpdate(queuedUser)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.fetchChannel(queuedUser.dmChannelId)
+            .then(dmChannel =>
+                {
+                    return dmChannel.send("The host closed the queue");
+                })
+            .then(() =>
+                {
+                    return this.fetchMessagePromise(queuedUser.dmChannelId, queuedUser.dmMessageId);
+                })
+            .then(message =>
+                {
+                    return message.delete();
+                })
+            .then(() =>
+                {
+                    return this.fetchMessagePromise(queuedUser.dmChannelId, queuedUser.dodoCodeMessage);
+                })
+            .then(dodoCodeMessage =>
+                {
+                    return dodoCodeMessage.delete();
+                })
+            .then(() =>
+                {
+                    return queuedUsersDb.remove({queueid: queuedUser.queueid, userid: queuedUser.userid});
+                })
+            .then(() => resolve())
+            .catch(err => reject(err));
+        })
+    }
+
     /**
      * 
      * @param {string} userid 
@@ -301,6 +351,28 @@ class QueueUserManager
                 .catch(err => callback(err));
             })
         .catch(err => callback(err));
+    }
+
+    fetchMessagePromise(channelId, messageId)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.channelManager.fetch(channelId)
+            .then(dmChannel =>
+                {
+                    return dmChannel.messages.fetch(messageId);
+                })
+            .then(message =>
+                {
+                    resolve(message);
+                })
+            .catch(err => reject(err));
+        });
+    }
+
+    fetchChannel(channelid)
+    {
+        return this.channelManager.fetch(channelid);
     }
 }
 

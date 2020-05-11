@@ -1,4 +1,4 @@
-const {openIslandsDb, userDb} = require('../Database/databases.js');
+const {openIslandsDb, userDb, openQueuesDb} = require('../Database/databases.js');
 
 class ClosingError extends Error
 {
@@ -6,6 +6,11 @@ class ClosingError extends Error
     {
         super(message);
     }
+}
+
+String.prototype.capitalize = function()
+{
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
 module.exports =
@@ -25,8 +30,10 @@ module.exports =
 
 
         let userInfo;
-        let closingMessage;
+        let closingMessage = "now closing your ";
+        let toClose = [];
         let island;
+        let queue;
 
         userDb.get(serverid, userid)
         .then(user =>
@@ -38,18 +45,36 @@ module.exports =
             {
                 if(islands && islands.length > 0)
                 {
-                    closingMessage = "now closing your island";
+                    toClose.push("island");
                     island = islands[0];
+                }
+                return openQueuesDb.get({serverid: serverid, userid: userid});
+            })
+        .then(queues =>
+            {
+                if(queues && queues.length > 0)
+                {
+                    toClose.push("queue");
+                    queue = queues[0];
+                }
+            })
+        .then(() =>
+            {
+                if(toClose.length == 0)
+                {
+                    let nothingToClose = "you currently have no open islands or queues";
+                    throw new ClosingError(nothingToClose);
+                }
+                else
+                {
+                    closingMessage += toClose.map(str => str);
                     if(userInfo.island)
                     {
                         closingMessage += " " + userInfo.island;
                     }
-                    client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid, warningmessageid: island.warningmessageid});
-                    return message.reply(closingMessage);
-                }
-                else
-                {
-                    throw new ClosingError("you currently have no open island");
+                    client.emit('close' + toClose[0].capitalize(), island, queue);
+                    //client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid, warningmessageid: island.warningmessageid});
+                    message.reply(closingMessage);
                 }
             })
         .catch(err =>
