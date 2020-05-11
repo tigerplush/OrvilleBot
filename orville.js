@@ -207,7 +207,7 @@ bot.on('messageReactionRemove', (messageReaction, user) => {
         {
             if(queue)
             {
-                queueUserManager.remove(user.id, queue);
+                return queueUserManager.remove(user.id, queue);
             }
         })
     .catch(err => console.log(err));

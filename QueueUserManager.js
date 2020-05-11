@@ -84,43 +84,47 @@ class QueueUserManager
      */
     remove(userid, queue)
     {
-        console.log(`removing user ${userid} from queue ${queue._id}`);
-        queuedUsersDb.getUser({queueid: queue._id, userid: userid})
-        .then(queuedUser =>
+        return new Promise((resolve, reject) =>
         {
-            // remove entry from database
-            queuedUsersDb.remove({queueid: queue._id, userid: queuedUser.userid})
-            .then(() => this.update(queue))
-            .catch(err => console.log(err));
-
-            this.fetchMessage(queuedUser.dmChannelId, queuedUser.dmMessageId, function(err, message)
+            console.log(`removing user ${userid} from queue ${queue._id}`);
+            queuedUsersDb.getUser({queueid: queue._id, userid: userid})
+            .then(queuedUser =>
             {
-                if(err)
-                {
-                    throw new Error(err);
-                }
-                message.delete()
+                // remove entry from database
+                queuedUsersDb.remove({queueid: queue._id, userid: queuedUser.userid})
+                .then(() => this.update(queue))
                 .catch(err => console.log(err));
-            })
 
-            this.fetchMessage(queuedUser.dmChannelId, queuedUser.dodoCodeMessage, function(err, message)
-            {
-                if(err)
+                this.fetchMessage(queuedUser.dmChannelId, queuedUser.dmMessageId, function(err, message)
                 {
-                    throw new Error(err);
-                }
-                message.delete()
-                .catch(err => console.log(err));
-            });
-
-            this.fetchChannel(queuedUser.dmChannelId)
-            .then(dmChannel =>
-                {
-                    dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
+                    if(err)
+                    {
+                        throw new Error(err);
+                    }
+                    message.delete()
+                    .catch(err => console.log(err));
                 })
+
+                this.fetchMessage(queuedUser.dmChannelId, queuedUser.dodoCodeMessage, function(err, message)
+                {
+                    if(err)
+                    {
+                        throw new Error(err);
+                    }
+                    message.delete()
+                    .catch(err => console.log(err));
+                });
+
+                this.fetchChannel(queuedUser.dmChannelId)
+                .then(dmChannel =>
+                    {
+                        resolve(dmChannel);
+                    })
+                .catch(err => reject(err));
+            })
             .catch(err => console.log(err));
-        })
-        .catch(err => console.log(err));
+        });
+        
     }
 
     update(queue)
@@ -148,7 +152,12 @@ class QueueUserManager
             {
                 if(docs && docs.length > 0)
                 {
-                    this.remove(docs[0].userid, queue);
+                    this.remove(docs[0].userid, queue)
+                    .then(dmChannel =>
+                        {
+                            dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
+                        })
+                    .catch(err => console.log(err));
                 }
             })
         .catch(err => console.log(err));
