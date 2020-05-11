@@ -1,5 +1,5 @@
 const {turnipUrl, ping} = require('../config.json');
-const {airportsDb, openIslandsDb, userDb} = require('../Database/databases.js');
+const {airportsDb, openIslandsDb, userDb, openQueuesDb} = require('../Database/databases.js');
 
 class OpenIslandError extends Error
 {
@@ -71,7 +71,15 @@ module.exports =
                     // todo: update island ? update comment? update dodo code?
                     throw new OpenIslandError("you already have an island open");
                 }
+                //check if user has a queue open
+                return openQueuesDb.get({serverid: serverid, userid: userid});
+            })
+        .then(queues =>
+            {
+                if(queues && queues.length > 0)
                 {
+                    //yes
+                    throw new OpenIslandError("you already have an open queue");
                 }
                 return airportsDb.getAirport(serverid)
                 .catch(err =>
