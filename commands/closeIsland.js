@@ -1,5 +1,13 @@
 const {openIslandsDb, userDb} = require('../Database/databases.js');
 
+class ClosingError extends Error
+{
+    constructor(message)
+    {
+        super(message);
+    }
+}
+
 module.exports =
 {
     name: "close",
@@ -15,39 +23,42 @@ module.exports =
         const serverid = message.guild.id;
         const userid = message.author.id;
 
-        openIslandsDb.get(serverid, userid)
+
+        let userInfo;
+        let closingMessage;
+        let island;
+
+        userDb.get(serverid, userid)
+        .then(user =>
+            {
+                userInfo = user;
+                return openIslandsDb.get(serverid, userid);
+            })
         .then(islands =>
             {
                 if(islands && islands.length > 0)
                 {
+                    closingMessage = "now closing your island";
                     island = islands[0];
-                    let closingMessage = "now closing your island";
-                    userDb.get(serverid, userid)
-                    .then(user =>
-                        {
-                            if(user.island)
-                            {
-                                closingMessage += " " + user.island;
-                            }
-                            return closingMessage;
-                        })
-                    .catch(err =>
-                        {
-                            console.log(err);
-                            return closingMessage;
-                        })
-                    .then(closingMessage => message.reply(closingMessage));
-
+                    if(userInfo.island)
+                    {
+                        closingMessage += " " + userInfo.island;
+                    }
                     client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid, warningmessageid: island.warningmessageid});
+                    return message.reply(closingMessage);
                 }
                 else
                 {
-                    message.reply("you currently have no open island");
+                    throw new ClosingError("you currently have no open island");
                 }
             })
         .catch(err =>
             {
-                console.log(err + " for server " + serverid + " and user " + userid);
+                if(err instanceof ClosingError)
+                {
+                    message.reply(err.message);
+                }
+                console.log(err);
             });
     },
 };
