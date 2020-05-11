@@ -82,7 +82,7 @@ class QueueUserManager
      * @param {string} userid 
      * @param {*} queue 
      */
-    remove(userid, queue, guild)
+    remove(userid, queue)
     {
         console.log(`removing user ${userid} from queue ${queue._id}`);
         queuedUsersDb.getUser({queueid: queue._id, userid: userid})
@@ -123,7 +123,7 @@ class QueueUserManager
         .catch(err => console.log(err));
     }
 
-    update(queue, guild)
+    update(queue)
     {
         this.fetchQueueDmMessage(queue, (err, message) =>
         {
@@ -137,10 +137,10 @@ class QueueUserManager
 
         this.updateQueueUsers(queue);
 
-        this.updateQueuePost(queue, guild);
+        this.updateQueuePost(queue);
     }
 
-    next(queue, guild)
+    next(queue)
     {
         //find all users for a queue
         queuedUsersDb.get({queueid: queue._id})
@@ -148,7 +148,7 @@ class QueueUserManager
             {
                 if(docs && docs.length > 0)
                 {
-                    this.remove(docs[0].userid, queue, guild);
+                    this.remove(docs[0].userid, queue);
                 }
             })
         .catch(err => console.log(err));
@@ -268,24 +268,11 @@ class QueueUserManager
      * @todo remove airport from this class by saving the airport channel in open queue?
      * @param {} queue 
      */
-    updateQueuePost(queue, guild)
+    updateQueuePost(queue)
     {
         airportsDb.getAirport(queue.serverid)
         .then(airport =>
             {
-                let emoji = defaultUserQueueEmoji;
-                if(airport.emoji && guild)
-                {
-                    let newEmoji = guild.emojis.cache.find(reaction => reaction.name === airport.emoji);
-                    if(newEmoji)
-                    {
-                        emoji = newEmoji;
-                    }
-                    else
-                    {
-                        emoji = airport.emoji;
-                    }
-                }
                 this.fetchMessage(airport.channelid, queue.queueMessageId, function(err, message)
                 {
                     if(err)
@@ -293,6 +280,7 @@ class QueueUserManager
                         console.log(err);
                         return;
                     }
+                    const emoji = message.reactions.cache.first().emoji;
                     queuedUsersDb.count({queueid: queue._id})
                     .then(usersInQueue =>
                         {
