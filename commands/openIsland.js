@@ -1,6 +1,14 @@
 const {turnipUrl, ping} = require('../config.json');
 const {airportsDb, openIslandsDb, userDb} = require('../Database/databases.js');
 
+class OpenIslandError extends Error
+{
+    constructor(message)
+    {
+        super(message);
+    }
+}
+
 module.exports =
 {
     name: "open",
@@ -61,94 +69,78 @@ module.exports =
                 {
                     //yes
                     // todo: update island ? update comment? update dodo code?
-                    message.reply("you already have an island open");
-                    return;
+                    throw new OpenIslandError("you already have an island open");
                 }
-                else
                 {
-                    // no open island
-                    //fetch airport channel
-                    airportsDb.getAirport(serverid)
-                    .then(airport =>
-                        {
-                            const comment = args.join(' ');
-                            createIsland(serverid, userid, code, comment, type, function(err, island)
-                            {
-                                if(err)
-                                {
-                                    console.log(err);
-                                    message.reply("there is an error in the database, please contact an admin to fix that");
-                                }
-                                else
-                                {
-                                    const codeword = comment.match(new RegExp(ping.word, "i"));
-                                    const threshold = args.filter(word =>
-                                        {
-                                            if(Number(word) && Number(word) >= ping.threshold)
-                                            {
-                                                return Number(word);
-                                            }
-                                        });
-                                    if(codeword && codeword.length > 0 && threshold && threshold.length > 0)
-                                    {
-                                        const pingRole = message.guild.roles.cache.find(role => role.name === ping.role);
-                                        if(pingRole)
-                                        {
-                                            island.ping = pingRole.id;
-                                        }
-                                    }
-                                    message.client.emit('openIsland', island);
-                                }
-                            });
-                        })
-                    .catch(err =>{
-                        console.log(err);
-                        message.reply("I couldn't find an open airport for your server. Please ask an admin to create one");
-                    });
                 }
+                return airportsDb.getAirport(serverid)
+                .catch(err =>
+                    {
+                        return new OpenIslandError("I couldn't find an open airport for your server. Please ask an admin to create one");
+                    });
             })
-        .catch(err => console.log(err));
+        .then(() =>
+            {
+                const comment = args.join(' ');
+                return createIslandPromise(serverid, userid, code, comment, type)
+                .catch(err =>
+                    {
+                        throw new OpenIslandError("I couldn't find an airport for your server - please ask an admin to create one");
+                    });
+            })
+        .then(island =>
+        {
+            const codeword = island.comment.match(new RegExp(ping.word, "i"));
+            const threshold = args.filter(word =>
+                {
+                    if(Number(word) && Number(word) >= ping.threshold)
+                    {
+                        return Number(word);
+                    }
+                });
+            if(codeword && codeword.length > 0 && threshold && threshold.length > 0)
+            {
+                const pingRole = message.guild.roles.cache.find(role => role.name === ping.role);
+                if(pingRole)
+                {
+                    island.ping = pingRole.id;
+                }
+            }
+            message.client.emit('openIsland', island);
+        })
+        .catch(err =>
+            {
+                if(err instanceof OpenIslandError)
+                {
+                    message.reply(err.message);
+                }
+                console.log(err)
+            });
     },
 };
 
-/**
- * Callback for creating an island
- * @callback createIslandCallback
- * @param {*} err 
- * @param {*} island 
- */
-
-/**
- * 
- * @param {*} serverid 
- * @param {*} userid 
- * @param {*} dodoCode 
- * @param {*} comment 
- * @param {*} type 
- * @param {createIslandCallback} callback callback, signature err, island
- */
-function createIsland(serverid, userid, dodoCode, comment, type, callback)
+function createIslandPromise(serverid, userid, dodoCode, comment, type)
 {
-    userDb.get({serverid: serverid, userid: userid})
-    .then(docs =>
-        {
-            let island = {};
-            if(docs && docs.length)
+    return new Promise((resolve, reject) =>
+    {
+        userDb.get({serverid: serverid, userid: userid})
+        .then(docs =>
             {
-                island = docs[0];
-            }
-            else
-            {
-                island.serverid = serverid;
-                island.userid = userid;
-            }
-            island.dodoCode = dodoCode;
-            island.comment = comment;
-            island.type = type;
-            callback(undefined, island);
-        })
-    .catch(err =>
-        {
-            callback(err, undefined);
-        });
+                let island = {};
+                if(docs && docs.length)
+                {
+                    island = docs[0];
+                }
+                else
+                {
+                    island.serverid = serverid;
+                    island.userid = userid;
+                }
+                island.dodoCode = dodoCode;
+                island.comment = comment;
+                island.type = type;
+                resolve(island);
+            })
+        .catch(err => reject(err));
+    });
 }
