@@ -14,10 +14,10 @@ module.exports =
 {
     name: "create-queue",
     usage: "",
-    description: "Creates a queue for your island",
+    description: "Creates a queue for your island. Orville will dm you to ask you for the code",
     example:
         [
-            ["", "renews the lease on your island for another 3h"]
+            ["", "creates a queue for your island. Orville will dm you to ask you for the code"]
         ],
     execute(message, args)
     {
