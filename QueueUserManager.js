@@ -38,7 +38,6 @@ class QueueUserManager
         queuedUsersDb.get({queueid: queue._id})
         .then(queuedUsers =>
             {
-                console.log(queuedUsers);
                 if(queuedUsers && queuedUsers.length > 0)
                 {
                     const removalPromises = queuedUsers.map(user => this.removeWithoutUpdate(user));
