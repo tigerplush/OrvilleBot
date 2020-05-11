@@ -23,7 +23,7 @@ class OpenQueuesDatabase extends Database
                     {
                         resolve(docs[0]);
                     }
-                    reject(`404 - queue with properties ${JSON.stringify(queueInfo)} not found`);
+                    resolve();
                 })
             .catch(err => reject(err));
         })

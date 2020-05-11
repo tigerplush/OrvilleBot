@@ -172,7 +172,10 @@ bot.on('messageReactionAdd', (messageReaction, user) => {
     openQueuesDb.getQueue({queueMessageId: messageid})
     .then(queue =>
         {
-            queueUserManager.add(user, queue);
+            if(queue)
+            {
+                queueUserManager.add(user, queue);
+            }
         })
     .catch(err => console.log(err));
 
@@ -181,7 +184,10 @@ bot.on('messageReactionAdd', (messageReaction, user) => {
     .then(queue =>
         {
             //this reaction was on a dm queue message, query next queue user
-            queueUserManager.next(queue);
+            if(queue)
+            {
+                queueUserManager.next(queue);
+            }
         })
     .catch(err => console.log(err));
 });
@@ -199,7 +205,10 @@ bot.on('messageReactionRemove', (messageReaction, user) => {
     openQueuesDb.getQueue({queueMessageId: messageid})
     .then(queue =>
         {
-            queueUserManager.remove(user.id, queue);
+            if(queue)
+            {
+                queueUserManager.remove(user.id, queue);
+            }
         })
     .catch(err => console.log(err));
 
@@ -208,7 +217,10 @@ bot.on('messageReactionRemove', (messageReaction, user) => {
     .then(queue =>
         {
             //this reaction was on a dm queue message, query next queue user
-            queueUserManager.next(queue);
+            if(queue)
+            {
+                queueUserManager.next(queue);
+            }
         })
     .catch(err => console.log(err));
 });
