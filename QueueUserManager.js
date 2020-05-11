@@ -173,7 +173,7 @@ class QueueUserManager
                 .catch(err => console.log(err))
                 .then(userInfos =>
                     {
-                        let messageContent = "You have an open queue."
+                        let messageContent = `You have an open queue with the dodo code **${queue.dodoCode}**.`
                         if(queriedUsers)
                         {
                             if(queriedUsers.length == 0)
@@ -243,7 +243,7 @@ class QueueUserManager
                         else
                         {
                             //if not, send one
-                            dmChannel.send(`You're up! The dodo code is ${queue.dodoCode}\nIf you need to do a second trip, please requeue!`)
+                            dmChannel.send(`You're up! The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
                             .then(dodoCodeMessage =>
                                 {
                                     queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id})

@@ -84,7 +84,7 @@ module.exports =
                 {
                     //valid dodo code
                     queue.dodoCode = messageContent.toUpperCase();
-                    return dmMessage.channel.send("You have an open queue. This message will get updated when new infos come in");
+                    return dmMessage.channel.send(`You have an open queue with the dodo code **${queue.dodoCode}**. This message will get updated when new infos come in`);
                 }
                 else
                 {
