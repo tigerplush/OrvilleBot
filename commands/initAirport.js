@@ -16,21 +16,40 @@ module.exports =
 
         const serverid = message.guild.id;
         const channelid = message.channel.id;
+        let openingMessage;
 
+        let newAirport = {};
+        newAirport.serverid = serverid;
+        newAirport.channelid = channelid;
         airportsDb.getAirport(serverid)
         .then(airport =>
             {
+                let openMessage = "Airport successfully opened";
                 if(airport)
                 {
                     //there is an airport, update
-                    message.channel.send("Airport successfully moved");
+                    openMessage = "Airport successfully updated";
                 }
-                else
+                openMessage += "\nReact within 1 minute with an emoji to set a reaction for queuing up users";
+                //create new airport
+                return message.channel.send(openMessage);
+            })
+        .catch(err => console.log(err))
+        .then(airportMessage =>
+            {
+                openingMessage = airportMessage;
+                const filter = mes => mes;
+                airportMessage.awaitReactions(filter, { max: 1, time: 60000, errors: ['time'] })
+                .then(messageReactions =>
+                    {
+                        newAirport.emoji = messageReactions.first().emoji.name;
+                    })
+                .catch(err => console.log(err))
+                .finally(() =>
                 {
-                    //create new airport
-                    message.channel.send("Airport successfully opened");
-                }
-                message.client.emit('updateAirports', {serverid: serverid, channelid: channelid});
+                    openingMessage.edit("Airport is currently open!");
+                    message.client.emit('updateAirports', newAirport);
+                });
             })
         .catch(err => console.log(err));
     },

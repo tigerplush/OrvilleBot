@@ -4,6 +4,8 @@
     ,"airportsdb": "airports.db"
     ,"openislandsdb": "openislands.db"
     ,"userinfodb": "userinfo.db"
+    ,"openqueuedb": "openqueues.db"
+    ,"queuedusersdb": "queuedusers.db"
     ,"wilburAPIUrl": "http://62.75.251.202:3000"
     ,"turnipUrl": "https://turnip.exchange/island/"
     ,"warningTime": "02:00:00"
