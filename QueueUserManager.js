@@ -116,7 +116,7 @@ class QueueUserManager
             this.fetchChannel(queuedUser.dmChannelId)
             .then(dmChannel =>
                 {
-                    dmChannel.send(`The host has ended your turn. Please requeue if you want to visit again`);
+                    dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
                 })
             .catch(err => console.log(err));
         })
