@@ -4,11 +4,6 @@ const {airportsDb, userDb, queuedUsersDb} = require('./Database/databases.js');
 
 class QueueUserManager
 {
-    /**
-     * Clients channel manager to fetch channels from
-     */
-    channelManager;
-
     constructor(channelManager)
     {
         this.channelManager = channelManager;
