@@ -118,6 +118,13 @@ class QueueUserManager
                 message.delete()
                 .catch(err => console.log(err));
             });
+
+            this.fetchChannel(queuedUser.dmChannelId)
+            .then(dmChannel =>
+                {
+                    dmChannel.send(`The host has ended your turn. Please requeue if you want to visit again`);
+                })
+            .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
     }
