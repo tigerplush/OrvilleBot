@@ -86,10 +86,7 @@ module.exports =
                     queue.dodoCode = messageContent.toUpperCase();
                     return dmMessage.channel.send(`You have an open queue with the dodo code **${queue.dodoCode}**. This message will get updated when new infos come in`);
                 }
-                else
-                {
-                    collectedMessages.first().reply("your dodo code is not valid, aborting the queue creating process...")
-                }
+                throw new QueueError("Your dodo code is not valid, aborting the queue creating process...");
             })
         .then(updateMessage =>
             {
