@@ -58,7 +58,7 @@ module.exports =
                     return message.author.createDM()
                     .catch(err =>
                         {
-                            throw new Error("I couldn't send you a dm");
+                            throw new QueueError("I couldn't send you a dm");
                         });
                 }
             })
