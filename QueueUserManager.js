@@ -152,13 +152,12 @@ class QueueUserManager
             {
                 if(docs && docs.length > 0)
                 {
-                    this.remove(docs[0].userid, queue)
-                    .then(dmChannel =>
-                        {
-                            dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
-                        })
-                    .catch(err => console.log(err));
+                    return this.remove(docs[0].userid, queue);
                 }
+            })
+        .then(dmChannel =>
+            {
+                dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
             })
         .catch(err => console.log(err));
         //remove the first ones dodo code
