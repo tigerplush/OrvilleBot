@@ -171,45 +171,48 @@ class QueueUserManager
         queuedUsersDb.get({queueid: queue._id})
         .then(users =>
             {
-                queriedUsers = users;
-                const userQuery = users.map(user =>
-                    {
-                        return {serverid: queue.serverid, userid: user.userid};
-                    });
-                const userPromises = userQuery.map(user => userDb.get(user));
-                Promise.all(userPromises)
-                .then(docs => docs.map(doc => doc[0]))
-                .catch(err => console.log(err))
-                .then(userInfos =>
-                    {
-                        let messageContent = `You have an open queue with the dodo code **${queue.dodoCode}**.`
-                        if(queriedUsers)
+                if(users && users.length > 0)
+                {
+                    queriedUsers = users;
+                    const userQuery = users.map(user =>
                         {
-                            if(queriedUsers.length == 0)
-                            {
-                                messageContent += " This message will get updated when new infos come in";
-                            }
-                            else
-                            {
-                                messageContent += `\nIn your queue are currently ${queriedUsers.length} people:`;
-                                for(let i = 0; i < queriedUsers.length; i++)
-                                {
-                                    messageContent += `\n**${queriedUsers[i].name}**`;
+                            return {serverid: queue.serverid, userid: user.userid};
+                        });
+                    const userPromises = userQuery.map(user => userDb.get(user));
+                    return Promise.all(userPromises);
+                }
+            })
+        .then(docs =>
+            {
+                return docs.map(doc => doc[0]);
+            })
+        .then(userInfos =>
+            {
+                let messageContent = `You have an open queue with the dodo code **${queue.dodoCode}**.`
+                if(queriedUsers)
+                {
+                    if(queriedUsers.length == 0)
+                    {
+                        messageContent += " This message will get updated when new infos come in";
+                    }
+                    else
+                    {
+                        messageContent += `\nIn your queue are currently ${queriedUsers.length} people:`;
+                        for(let i = 0; i < queriedUsers.length; i++)
+                        {
+                            messageContent += `\n**${queriedUsers[i].name}**`;
 
-                                    const userInfo = userInfos.find(user => user.userid === users[i].userid);
-                                    messageContent += ToMessage(userInfo);
+                            const userInfo = userInfos.find(user => user.userid === users[i].userid);
+                            messageContent += ToMessage(userInfo);
 
-                                    if(i === (queueSize - 1))
-                                    {
-                                        messageContent += "==================";
-                                    }
-                                }
+                            if(i === (queueSize - 1))
+                            {
+                                messageContent += "==================";
                             }
                         }
-                        message.edit(messageContent)
-                        .catch(err => console.log(err));
-                    });
-                
+                    }
+                    return message.edit(messageContent);
+                }
             })
         .catch(err => console.log(err));
     }
