@@ -235,7 +235,7 @@ class QueueUserManager
     updateQueueUserMessage(queue, user, index)
     {
         this.fetchMessagePromise(user.dmChannelId, user.dmMessageId)
-        .then(() =>
+        .then(message =>
             {
                 if(index < queueSize)
                 {
@@ -251,7 +251,7 @@ class QueueUserManager
                             else
                             {
                                 //if not, send one
-                                return dmChannel.send(`You're up! The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
+                                return message.channel.send(`You're up! The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
                                 .then(dodoCodeMessage =>
                                     {
                                         queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id})
