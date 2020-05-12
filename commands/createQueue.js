@@ -34,6 +34,7 @@ module.exports =
         let queue = {};
         queue.serverid = serverid;
         queue.userid = userid;
+        queue.username = message.author.username;
 
         openQueuesDb.get(queue)
         .then(docs =>

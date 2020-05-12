@@ -15,7 +15,7 @@ class QueueUserManager
         user.createDM()
         .then(dmChannel =>
             {
-                dmChannel.send("You are now in a queue")
+                dmChannel.send(`You are now in a queue for ${queue.username}s island`)
                 .then(dmMessage =>
                     {
                         const queuedUser = {queueid: queue._id, userid: user.id, name: user.username, dmChannelId: dmMessage.channel.id, dmMessageId: dmMessage.id};
@@ -249,6 +249,8 @@ class QueueUserManager
             {
                 if(index < queueSize)
                 {
+                    message.edit(`You're up for ${queue.username}s island!`)
+                    .catch(err => console.log(err));
                     //user is allowed onto the island
                     //check if there is already a dodoCode message
                     return queuedUsersDb.get({queueid: queue._id, userid: user.id, dodoCodeMessage: {$exists: true }})
@@ -273,7 +275,7 @@ class QueueUserManager
                 else
                 {
                     //user has to wait
-                    return message.edit(`There are ${queueSize - index} people before you`);
+                    return message.edit(`You are now in a queue for ${queue.username}s island\nThere are ${queueSize - index} people before you`);
                 }
             })
         .catch(err => console.log(err));
