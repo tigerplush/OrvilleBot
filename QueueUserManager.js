@@ -231,45 +231,39 @@ class QueueUserManager
 
     updateQueueUserMessage(queue, user, index)
     {
-        this.fetchMessage(user.dmChannelId, user.dmMessageId, function(err, message, dmChannel)
-        {
-            if(err)
+        this.fetchMessagePromise(user.dmChannelId, user.dmMessageId)
+        .then(() =>
             {
-                console.log(err);
-                return;
-            }
-            //is the user allowed onto the island?
-            if(index < queueSize)
-            {
-                //check if there is already a dodoCode message
-                queuedUsersDb.get({queueid: queue._id, userid: user.id, dodoCodeMessage: {$exists: true }})
-                .then(docs =>
-                    {
-                        if(docs && docs.length > 0)
+                if(index < queueSize)
+                {
+                    //user is allowed onto the island
+                    //check if there is already a dodoCode message
+                    return queuedUsersDb.get({queueid: queue._id, userid: user.id, dodoCodeMessage: {$exists: true }})
+                    .then(docs =>
                         {
-                            //there is a message, abort
-                        }
-                        else
-                        {
-                            //if not, send one
-                            dmChannel.send(`You're up! The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
-                            .then(dodoCodeMessage =>
-                                {
-                                    queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id})
-                                    .catch(err => console.log(err));
-                                })
-                            .catch(err => console.log(err));
-                        }
-                    })
-                .catch(err => console.log(err));
-            }
-            else
-            {
-                //update message
-                message.edit(`There are ${queueSize - index} people before you`)
-                .catch(err => console.log(err));
-            }
-        });
+                            if(docs && docs.length > 0)
+                            {
+                                //there is a message, abort
+                            }
+                            else
+                            {
+                                //if not, send one
+                                return dmChannel.send(`You're up! The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
+                                .then(dodoCodeMessage =>
+                                    {
+                                        queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id})
+                                        .catch(err => console.log(err));
+                                    });
+                            }
+                        });
+                }
+                else
+                {
+                    //user has to wait
+                    return message.edit(`There are ${queueSize - index} people before you`);
+                }
+            })
+        .catch(err => console.log(err));
     }
 
     /**
