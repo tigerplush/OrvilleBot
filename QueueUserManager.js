@@ -217,7 +217,7 @@ class QueueUserManager
 
                             if(i === (queueSize - 1))
                             {
-                                messageContent += "==================";
+                                messageContent += "\n==================";
                             }
                         }
                     }
