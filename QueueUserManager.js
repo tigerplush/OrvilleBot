@@ -202,13 +202,18 @@ class QueueUserManager
                         {
                             messageContent += `\n**${queriedUsers[i].name}**`;
 
-                            messageContent += userInfos.find(user => 
+                            
+                            const userInf = userInfos.find(user => 
                                 {
                                     if(user && user.userid === queriedUsers[i].userid)
                                     {
-                                        return ToMessage(user);
+                                        return user;
                                     }
                                 });
+                            if(userInf)
+                            {
+                                messageContent += ToMessage(userInf);
+                            }
 
                             if(i === (queueSize - 1))
                             {
