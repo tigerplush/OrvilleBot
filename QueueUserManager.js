@@ -18,7 +18,7 @@ class QueueUserManager
                 dmChannel.send(`You are now in a queue for ${queue.username}s island`)
                 .then(dmMessage =>
                     {
-                        const queuedUser = {queueid: queue._id, userid: user.id, name: user.username, dmChannelId: dmMessage.channel.id, dmMessageId: dmMessage.id};
+                        const queuedUser = {queueid: queue._id, userid: user.id, name: user.username, dmChannelId: dmMessage.channel.id, dmMessageId: dmMessage.id, timestamp: Date.now()};
                         queuedUsersDb.add(queuedUser)
                         .then(() => this.update(queue, guild))
                         .catch(err => console.log(err));
@@ -171,7 +171,7 @@ class QueueUserManager
     updateQueueOwnerMessage(message, queue)
     {
         let queriedUsers;
-        queuedUsersDb.get({queueid: queue._id})
+        queuedUsersDb.getSortedUsers({queueid: queue._id})
         .then(users =>
             {
                 queriedUsers = users;
@@ -234,7 +234,7 @@ class QueueUserManager
     updateQueueUsers(queue)
     {
         //find all messages for all queue users
-        queuedUsersDb.get({queueid: queue._id})
+        queuedUsersDb.getSortedUsers({queueid: queue._id})
         .then(users =>
             {
                 users.map((user, index) => this.updateQueueUserMessage(queue, user, index));

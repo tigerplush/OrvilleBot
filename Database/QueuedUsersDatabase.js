@@ -25,6 +25,21 @@ class QueuedUsersDatabase extends Database
         })
     }
 
+    getSortedUsers(userInfo)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.database.find(userInfo).sort({timestamp: 1}).exec(function(err, docs)
+            {
+                if(err)
+                {
+                    reject(err);
+                }
+                resolve(docs);
+            });
+        });
+    }
+
     count(userInfo)
     {
         return new Promise((resolve, reject) =>
