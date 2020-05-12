@@ -247,14 +247,12 @@ class QueueUserManager
         this.fetchMessagePromise(user.dmChannelId, user.dmMessageId)
         .then(message =>
             {
-                if(index < queueSize)
+                if(index < queueSize && !user.dodoCodeMessage)
                 {
+                    //user is allowed on the island and there isn't already a dodo code message
                     message.edit(`You're up for ${queue.username}s island!`)
                     .catch(err => console.log(err));
-                    //user is allowed onto the island
-                    //check if there is already a dodoCode message
-                    console.log(user);
-                    //if not, send one
+                    //send dodo code message
                     return message.channel.send(`The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
                     .then(dodoCodeMessage =>
                         {
