@@ -295,7 +295,7 @@ class QueueUserManager
                             let queueMessageContent = `**<@${queue.userid}>** has an open queue!`;
                             if(queue.comment)
                             {
-                                queueMessageContent += `(${queue.comment})`;
+                                queueMessageContent += ` (${queue.comment})`;
                             }
                             if(usersInQueue)
                             {

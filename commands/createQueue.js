@@ -110,7 +110,7 @@ module.exports =
                     let queueMessageContent = `<@${userid}> has an open queue!`;
                     if(comment)
                     {
-                        queueMessageContent += `(${comment})`;
+                        queueMessageContent += ` (${comment})`;
                         queue.comment = comment;
                     }
 
