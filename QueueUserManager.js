@@ -276,6 +276,7 @@ class QueueUserManager
     updateQueuePost(queue)
     {
         let emoji = defaultUserQueueEmoji;
+        let queuePost;
         airportsDb.getAirport(queue.serverid)
         .then(airport =>
             {
@@ -288,6 +289,7 @@ class QueueUserManager
                 {
                     emoji = cachedEmoji;
                 }
+                queuePost = message;
                 return queuedUsersDb.count({queueid: queue._id});
             })
         .then(usersInQueue =>
@@ -302,7 +304,7 @@ class QueueUserManager
                     queueMessageContent += `\nThere are currently _${usersInQueue}_ users in this queue`;
                 }
                 queueMessageContent += `\nReact with ${emoji} to join the queue!`;
-                return message.edit(queueMessageContent);
+                return queuePost.edit(queueMessageContent);
             })
         .catch(err => console.log(err));
     }
