@@ -147,9 +147,12 @@ class QueueUserManager
     next(queue)
     {
         //find all users for a queue
-        queuedUsersDb.get({queueid: queue._id})
+        queuedUsersDb.getSortedUsers({queueid: queue._id})
         .then(docs =>
             {
+                //remove the first ones dodo code
+                //remove the first on from database
+                //send dodo code to the next one
                 if(docs && docs.length > 0)
                 {
                     return this.remove(docs[0].userid, queue);
@@ -157,15 +160,13 @@ class QueueUserManager
             })
         .then(dmChannel =>
             {
+                //send visit end
                 if(dmChannel)
                 {
                     dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
                 }
             })
         .catch(err => console.log(err));
-        //remove the first ones dodo code
-        //remove the first on from database
-        //send dodo code to the next one
     }
 
     updateQueueOwnerMessage(message, queue)
