@@ -278,34 +278,34 @@ class QueueUserManager
      */
     updateQueuePost(queue)
     {
+        let emoji = defaultUserQueueEmoji;
         airportsDb.getAirport(queue.serverid)
         .then(airport =>
             {
-                this.fetchMessage(airport.channelid, queue.queueMessageId, function(err, message)
+                return this.fetchMessagePromise(airport.channelid, queue.queueMessageId);
+            })
+        .then(message =>
+            {
+                let cachedEmoji = message.reactions.cache.first().emoji;
+                if(cachedEmoji)
                 {
-                    if(err)
-                    {
-                        console.log(err);
-                        return;
-                    }
-                    const emoji = message.reactions.cache.first().emoji;
-                    queuedUsersDb.count({queueid: queue._id})
-                    .then(usersInQueue =>
-                        {
-                            let queueMessageContent = `**<@${queue.userid}>** has an open queue!`;
-                            if(queue.comment)
-                            {
-                                queueMessageContent += ` (${queue.comment})`;
-                            }
-                            if(usersInQueue)
-                            {
-                                queueMessageContent += `\nThere are currently _${usersInQueue}_ users in this queue`;
-                            }
-                            queueMessageContent += `\nReact with ${emoji} to join the queue!`;
-                            message.edit(queueMessageContent);
-                        })
-                    .catch(err => console.log(err));
-                });
+                    emoji = cachedEmoji;
+                }
+                return queuedUsersDb.count({queueid: queue._id});
+            })
+        .then(usersInQueue =>
+            {
+                let queueMessageContent = `**<@${queue.userid}>** has an open queue!`;
+                if(queue.comment)
+                {
+                    queueMessageContent += ` (${queue.comment})`;
+                }
+                if(usersInQueue)
+                {
+                    queueMessageContent += `\nThere are currently _${usersInQueue}_ users in this queue`;
+                }
+                queueMessageContent += `\nReact with ${emoji} to join the queue!`;
+                return message.edit(queueMessageContent);
             })
         .catch(err => console.log(err));
     }
