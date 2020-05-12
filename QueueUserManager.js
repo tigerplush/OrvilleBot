@@ -171,16 +171,13 @@ class QueueUserManager
         queuedUsersDb.get({queueid: queue._id})
         .then(users =>
             {
-                if(users && users.length > 0)
-                {
-                    queriedUsers = users;
-                    const userQuery = users.map(user =>
-                        {
-                            return {serverid: queue.serverid, userid: user.userid};
-                        });
-                    const userPromises = userQuery.map(user => userDb.get(user));
-                    return Promise.all(userPromises);
-                }
+                queriedUsers = users;
+                const userQuery = users.map(user =>
+                    {
+                        return {serverid: queue.serverid, userid: user.userid};
+                    });
+                const userPromises = userQuery.map(user => userDb.get(user));
+                return Promise.all(userPromises);
             })
         .then(docs =>
             {
