@@ -296,7 +296,6 @@ class QueueUserManager
                             if(queue.comment)
                             {
                                 queueMessageContent += `(${queue.comment})`;
-                                queue.comment = comment;
                             }
                             if(usersInQueue)
                             {
