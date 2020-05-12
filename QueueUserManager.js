@@ -253,23 +253,13 @@ class QueueUserManager
                     .catch(err => console.log(err));
                     //user is allowed onto the island
                     //check if there is already a dodoCode message
-                    return queuedUsersDb.get({queueid: queue._id, userid: user.id, dodoCodeMessage: {$exists: true }})
-                    .then(docs =>
+                    console.log(user);
+                    //if not, send one
+                    return message.channel.send(`The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
+                    .then(dodoCodeMessage =>
                         {
-                            if(docs && docs.length > 0)
-                            {
-                                //there is a message, abort
-                            }
-                            else
-                            {
-                                //if not, send one
-                                return message.channel.send(`You're up! The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
-                                .then(dodoCodeMessage =>
-                                    {
-                                        queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id})
-                                        .catch(err => console.log(err));
-                                    });
-                            }
+                            queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id})
+                            .catch(err => console.log(err));
                         });
                 }
                 else
