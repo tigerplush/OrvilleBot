@@ -157,7 +157,10 @@ class QueueUserManager
             })
         .then(dmChannel =>
             {
-                dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
+                if(dmChannel)
+                {
+                    dmChannel.send(`The host has ended your visit. Please requeue if you want to visit again`);
+                }
             })
         .catch(err => console.log(err));
         //remove the first ones dodo code
