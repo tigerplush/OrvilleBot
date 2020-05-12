@@ -248,10 +248,11 @@ class QueueUserManager
         this.fetchMessagePromise(user.dmChannelId, user.dmMessageId)
         .then(message =>
             {
+                let modifier = queue.username.slice(-1) === "s" ? "'" : "s";
                 if(index < queueSize && !user.dodoCodeMessage)
                 {
                     //user is allowed on the island and there isn't already a dodo code message
-                    message.edit(`You're up for ${queue.username}s island!`)
+                    message.edit(`You're up for **${queue.username}**${modifier} island!`)
                     .catch(err => console.log(err));
                     //send dodo code message
                     return message.channel.send(`The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
@@ -264,7 +265,16 @@ class QueueUserManager
                 else
                 {
                     //user has to wait
-                    return message.edit(`You are now in a queue for ${queue.username}s island\nThere are ${queueSize - index} people before you`);
+                    let messageContent = `You are now in a queue for **${queue.username}**${modifier} island\n`;
+                    if(queueSize - index > 0)
+                    {
+                        messageContent += `There are ${queueSize - index} people before you`;
+                    }
+                    else
+                    {
+                        messageContent += `You're next!`
+                    }
+                    return message.edit(messageContent);
                 }
             })
         .catch(err => console.log(err));
