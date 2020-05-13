@@ -1,15 +1,9 @@
 const {turnipUrl, ping} = require('../config.json');
 const {airportsDb, openIslandsDb, userDb, openQueuesDb} = require('../Database/databases.js');
 
-const codeChecker = require('../codeChecker.js');
+const OpenIslandError = require('../Database/OpenIslandError.js');
 
-class OpenIslandError extends Error
-{
-    constructor(message)
-    {
-        super(message);
-    }
-}
+const codeChecker = require('../codeChecker.js');
 
 module.exports =
 {
