@@ -1,6 +1,6 @@
 const moment = require('moment');
 const {dodoCodeWaitingTime, defaultUserQueueEmoji} = require('../queueConfig.json');
-const {airportsDb, openIslandsDb, openQueuesDb} = require('../Database/databases.js');
+const {airportsDb, openIslandsDb, userDb, openQueuesDb} = require('../Database/databases.js');
 
 const codeChecker = require('../codeChecker.js');
 
@@ -37,6 +37,8 @@ module.exports =
         queue.serverid = serverid;
         queue.userid = userid;
         queue.username = message.author.username;
+
+        let queueOwner = {};
 
         openQueuesDb.get(queue)
         .then(docs =>
@@ -99,6 +101,18 @@ module.exports =
             })
         .then(() =>
             {
+                return userDb.get({serverid: serverid, userid: userid});
+            })
+        .then(docs =>
+            {
+                if(docs && docs.length > 0)
+                {
+                    queueOwner = docs[0];
+                }
+                return;
+            })
+        .then(() =>
+            {
                 return airportsDb.getAirport(serverid)
                 .catch(err =>
                     {
@@ -110,7 +124,19 @@ module.exports =
                 const airportChannel = message.guild.channels.cache.get(airport.channelid);
                 if(airportChannel)
                 {
-                    let queueMessageContent = `<@${userid}> has an open queue!`;
+                    let queueMessageContent = `<@${userid}>`;
+
+                    if(queueOwner.name)
+                    {
+                        queueMessageContent += ` (_${queueOwner.name}_)`;
+                    }
+
+                    queueMessageContent += `has an open queue`;
+                    if(queueOwner.island)
+                    {
+                        queueMessageContent += ` for ${queueOwner.island}`;
+                    }
+                    queueMessageContent += `!`;
                     if(comment)
                     {
                         queueMessageContent += ` (${comment})`;
