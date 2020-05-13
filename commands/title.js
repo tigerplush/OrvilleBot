@@ -1,4 +1,7 @@
 const {userDb} = require('../Database/databases.js');
+
+const UserInfoError = require('../Database/UserInfoError.js');
+
 module.exports =
 {
     name: "title",
@@ -14,46 +17,47 @@ module.exports =
         const serverid = message.guild.id;
         const userid = message.author.id;
 
-        if(args.length < 1)
-        {
-            userDb.getUser(serverid, userid)
-            .then(user => {
-                if(user.title)
+        userDb.getUser(serverid, userid)
+        .catch(err =>
+            {
+                if(err instanceof UserInfoError)
                 {
-                    message.reply(" your ingame title is currently '" + user.title + "'");
+                    return {};
                 }
-                else
-                {
-                    throw new Error("404 - Title not found");
-                }
+                throw new Error(err);
             })
-            .catch(err => {
-                message.reply(" you have not set your ingame title yet");
-                console.log(err);
-            });
-        }
-        else
-        {
-            const title = args.join(' ');
-            userDb.getUser(serverid, userid)
-            .then(user =>
+        .then(user =>
+            {
+                if(args.length < 1)
                 {
                     if(user.title)
                     {
-                        message.reply(" I've updated your ingame title to '" + title + "'");
+                        return message.reply(`your ingame title is currently '${user.title}'`);
                     }
-                    else
-                    {
-                        throw new Error("404 - Title not found");
-                    }
-                })
-            .catch(err =>
+                    throw new UserInfoError("you have not set your ingame title yet");
+                }
+                else
                 {
-                    message.reply(" I've set your ingame title to '" + title + "'");
-                    console.log(err);
-                });
+                    const title = args.join(' ');
+                    message.client.emit('islandUpdate', {serverid: serverid, userid: userid, title: title});
 
-            message.client.emit('islandUpdate', {serverid: serverid, userid: userid, title: title});
-        }
+                    if(user.title)
+                    {
+                        return message.reply(`I've updated your ingame title to '${title}'`);
+                    }
+                    throw new UserInfoError(`I've set your ingame title to '${title}'`);
+                }
+            })
+        .catch(err =>
+            {
+                if(err instanceof UserInfoError)
+                {
+                    message.reply(err.message);
+                }
+                else
+                {
+                    console.log(err);
+                }
+            });
     }
 };

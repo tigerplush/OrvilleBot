@@ -1,5 +1,7 @@
 const Database = require('./Database.js');
 
+const UserInfoError = require('./UserInfoError.js');
+
 class UserDatabase extends Database
 {
     constructor(pathToDb, dbName)
@@ -25,7 +27,7 @@ class UserDatabase extends Database
                     {
                         resolve(users[0]);
                     }
-                    reject(`Couldn't find user ${userid} on server ${serverid}`);
+                    reject(new UserInfoError(`Couldn't find user ${userid} on server ${serverid}`));
                 })
             .catch(err => reject(err));
         });

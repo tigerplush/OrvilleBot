@@ -1,4 +1,7 @@
 const {userDb} = require('../Database/databases.js');
+
+const UserInfoError = require('../Database/UserInfoError.js');
+
 module.exports =
 {
     name: "island",
@@ -14,46 +17,46 @@ module.exports =
         const serverid = message.guild.id;
         const userid = message.author.id;
 
-        if(args.length < 1)
-        {
-            userDb.getUser(serverid, userid)
-            .then(user => {
-                if(user.island)
+        userDb.getUser(serverid, userid)
+        .catch(err =>
+            {
+                if(err instanceof UserInfoError)
                 {
-                    message.reply(" your island name is currently '" + user.island + "'");
+                    return {};
                 }
-                else
-                {
-                    throw new Error("404 - Island not found");
-                }
+                throw new Error(err);
             })
-            .catch(err => {
-                message.reply(" you have not set your island name yet");
-                console.log(err);
-            });
-        }
-        else
-        {
-            const islandName = args.join(' ');
-            userDb.getUser(serverid, userid)
-            .then(user =>
+        .then(user =>
+            {
+                if(args.length < 1)
                 {
                     if(user.island)
                     {
-                        message.reply(" I've updated your island name to '" + islandName + "'");
+                        return message.reply(`your island name is currently '${user.island}'`);
                     }
-                    else
-                    {
-                        throw new Error("404 - Island not found");
-                    }
-                })
-            .catch(err =>
+                    throw new UserInfoError("you have not set your island name yet");
+                }
+                else
                 {
-                    message.reply(" I've set your island name to '" + islandName + "'");
+                    const islandName = args.join(' ');
+                    message.client.emit('islandUpdate', {serverid: serverid, userid: userid, island: islandName});
+                    if(user.island)
+                    {
+                        return message.reply(`I've updated your island name to '${islandName}'`);
+                    }
+                    throw new UserInfoError(`I've set your island name to '${islandName}'`);
+                }
+            })
+         .catch(err =>
+            {
+                if(err instanceof UserInfoError)
+                {
+                    message.reply(err.message);
+                }
+                else
+                {
                     console.log(err);
-                });
-
-            message.client.emit('islandUpdate', {serverid: serverid, userid: userid, island: islandName});
-        }
+                }
+            });
     }
 };
