@@ -2,6 +2,8 @@ const moment = require('moment');
 const {dodoCodeWaitingTime, defaultUserQueueEmoji} = require('../queueConfig.json');
 const {airportsDb, openIslandsDb, openQueuesDb} = require('../Database/databases.js');
 
+const codeChecker = require('../codeChecker.js');
+
 class QueueError extends Error
 {
     constructor(message)
@@ -82,7 +84,7 @@ module.exports =
             {
                 const dmMessage = collectedMessages.first();
                 const messageContent = dmMessage.content;
-                if(/^([a-zA-Z0-9_-]){5}$/.test(messageContent))
+                if(codeChecker.checkDodo(messageContent))
                 {
                     //valid dodo code
                     queue.dodoCode = messageContent.toUpperCase();

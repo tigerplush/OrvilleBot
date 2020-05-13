@@ -1,6 +1,8 @@
 const {turnipUrl, ping} = require('../config.json');
 const {airportsDb, openIslandsDb, userDb, openQueuesDb} = require('../Database/databases.js');
 
+const codeChecker = require('../codeChecker.js');
+
 class OpenIslandError extends Error
 {
     constructor(message)
@@ -34,19 +36,19 @@ module.exports =
         let type;
         const input = args.shift();
         //check if the input is valid
-        if(/^([a-zA-Z0-9_-]){5}$/.test(input))
+        if(codeChecker.checkDodo(input))
         {
             //valid dodo code
             code = input.toUpperCase();
             type = "dodo";
         }
-        else if(/^([a-zA-Z0-9_-]){8}$/.test(input))
+        else if(codeChecker.checkTurnip(input))
         {
             //valid turnip code
             code = turnipUrl + input.toLowerCase();
             type = "turnip.exchange";
         }
-        else if(/(http(s)?:\/\/.)?(www\.)?turnip\.exchange\/island\/([a-zA-Z0-9]){8}$/.test(input))
+        else if(codeChecker.checkTurnipUrl(input))
         {
             //valid turnip.exchange link
             code = input.toLowerCase();
@@ -54,7 +56,7 @@ module.exports =
         }
         else
         {
-            message.reply("please provide a dodo code, turnip.exchange code or turnip.exchange link");
+            message.reply("please provide a valid dodo code, turnip.exchange code or turnip.exchange link");
             return;
         }
 
