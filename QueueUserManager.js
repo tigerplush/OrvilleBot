@@ -15,16 +15,22 @@ class QueueUserManager
         user.createDM()
         .then(dmChannel =>
             {
-                dmChannel.send(`You are now in a queue for ${queue.username}s island`)
-                .then(dmMessage =>
-                    {
-                        const queuedUser = {queueid: queue._id, userid: user.id, name: user.username, dmChannelId: dmMessage.channel.id, dmMessageId: dmMessage.id, timestamp: Date.now()};
-                        queuedUsersDb.add(queuedUser)
-                        .then(() => this.update(queue, guild))
-                        .catch(err => console.log(err));
-                    })
-                .catch(err => console.log(err));
+                return dmChannel.send(`You are now in a queue for ${queue.username}s island`);
             })
+        .then(dmMessage =>
+            {
+                const queuedUser =
+                    {
+                        queueid: queue._id,
+                        userid: user.id,
+                        name: user.username,
+                        dmChannelId: dmMessage.channel.id,
+                        dmMessageId: dmMessage.id,
+                        timestamp: Date.now()
+                };
+                return queuedUsersDb.add(queuedUser);
+            })
+        .then(() => this.update(queue, guild))
         .catch(err => console.log(err))
     }
 
@@ -36,8 +42,7 @@ class QueueUserManager
                 if(queuedUsers && queuedUsers.length > 0)
                 {
                     const removalPromises = queuedUsers.map(user => this.removeWithoutUpdate(user));
-                    Promise.all(removalPromises)
-                    .catch(err => console.log(err));
+                    return Promise.all(removalPromises);
                 }
             })
         .catch(err => console.log(err));
@@ -54,7 +59,7 @@ class QueueUserManager
                 })
             .then(() =>
                 {
-                    return this.fetchMessagePromise(queuedUser.dmChannelId, queuedUser.dmMessageId);
+                    return this.fetchMessage(queuedUser.dmChannelId, queuedUser.dmMessageId);
                 })
             .then(message =>
                 {
@@ -62,7 +67,7 @@ class QueueUserManager
                 })
             .then(() =>
                 {
-                    return this.fetchMessagePromise(queuedUser.dmChannelId, queuedUser.dodoCodeMessage);
+                    return this.fetchMessage(queuedUser.dmChannelId, queuedUser.dodoCodeMessage);
                 })
             .then(dodoCodeMessage =>
                 {
@@ -84,60 +89,37 @@ class QueueUserManager
      */
     remove(userid, queue)
     {
-        return new Promise((resolve, reject) =>
+        console.log(`removing user ${userid} from queue ${queue._id}`);
+        queuedUsersDb.getUser({queueid: queue._id, userid: userid})
+        .then(queuedUser =>
         {
-            console.log(`removing user ${userid} from queue ${queue._id}`);
-            queuedUsersDb.getUser({queueid: queue._id, userid: userid})
-            .then(queuedUser =>
-            {
-                // remove entry from database
-                queuedUsersDb.remove({queueid: queue._id, userid: queuedUser.userid})
-                .then(() => this.update(queue))
-                .catch(err => console.log(err));
-
-                this.fetchMessage(queuedUser.dmChannelId, queuedUser.dmMessageId, function(err, message)
-                {
-                    if(err)
-                    {
-                        throw new Error(err);
-                    }
-                    message.delete()
-                    .catch(err => console.log(err));
-                })
-
-                this.fetchMessage(queuedUser.dmChannelId, queuedUser.dodoCodeMessage, function(err, message)
-                {
-                    if(err)
-                    {
-                        throw new Error(err);
-                    }
-                    message.delete()
-                    .catch(err => console.log(err));
-                });
-
-                this.fetchChannel(queuedUser.dmChannelId)
-                .then(dmChannel =>
-                    {
-                        resolve(dmChannel);
-                    })
-                .catch(err => reject(err));
-            })
+            // remove entry from database
+            queuedUsersDb.remove({queueid: queue._id, userid: queuedUser.userid})
+            .then(() => this.update(queue))
             .catch(err => console.log(err));
-        });
-        
+
+            this.fetchMessage(queuedUser.dmChannelId, queuedUser.dmMessageId)
+            .then(message =>
+                {
+                    return message.delete();
+                })
+            .catch(err => console.log(err));
+
+            this.fetchMessage(queuedUser.dmChannelId, queuedUser.dodoCodeMessage)
+            .then(message =>
+                {
+                    return message.delete();
+                })
+            .catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
     }
 
     update(queue)
     {
-        this.fetchQueueDmMessage(queue, (err, message) =>
-        {
-            if(err)
-            {
-                console.log(err);
-                return;
-            }
-            this.updateQueueOwnerMessage(message, queue);
-        });
+        this.fetchMessage(queue.dmChannelId, queue.dmMessageId)
+        .then(message => this.updateQueueOwnerMessage(message, queue))
+        .catch(err => console.log(err));
 
         this.updateQueueUsers(queue);
 
@@ -155,7 +137,8 @@ class QueueUserManager
                 //send dodo code to the next one
                 if(docs && docs.length > 0)
                 {
-                    return this.remove(docs[0].userid, queue);
+                    this.remove(docs[0].userid, queue);
+                    return this.fetchChannel(docs[0].dmChannelId);
                 }
             })
         .then(dmChannel =>
@@ -203,7 +186,6 @@ class QueueUserManager
                         {
                             messageContent += `\n**${queriedUsers[i].name}**`;
 
-                            
                             const userInf = userInfos.find(user => 
                                 {
                                     if(user && user.userid === queriedUsers[i].userid)
@@ -245,7 +227,7 @@ class QueueUserManager
 
     updateQueueUserMessage(queue, user, index)
     {
-        this.fetchMessagePromise(user.dmChannelId, user.dmMessageId)
+        this.fetchMessage(user.dmChannelId, user.dmMessageId)
         .then(message =>
             {
                 let modifier = queue.username.slice(-1) === "s" ? "'" : "s";
@@ -258,8 +240,7 @@ class QueueUserManager
                     return message.channel.send(`The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
                     .then(dodoCodeMessage =>
                         {
-                            queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id})
-                            .catch(err => console.log(err));
+                            return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id});
                         });
                 }
                 else
@@ -291,7 +272,7 @@ class QueueUserManager
         airportsDb.getAirport(queue.serverid)
         .then(airport =>
             {
-                return this.fetchMessagePromise(airport.channelid, queue.queueMessageId);
+                return this.fetchMessage(airport.channelid, queue.queueMessageId);
             })
         .then(message =>
             {
@@ -320,46 +301,7 @@ class QueueUserManager
         .catch(err => console.log(err));
     }
 
-    /**
-     * Callback for fetching messages
-     * @callback fetchedMessage
-     * @param {Error} error 
-     * @param {Message} message 
-     * @param {Channel} channel 
-     */
-
-    /**
-     * Fetches the queue control dm message
-     * @param {*} queue 
-     * @param {fetchedMessage} callback signature err, dmMessage
-     */
-    fetchQueueDmMessage(queue, callback)
-    {
-        this.fetchMessage(queue.dmChannelId, queue.dmMessageId, callback);
-    }
-
-    /**
-     * Fetches a message
-     * @param {*} channelId 
-     * @param {*} messageId 
-     * @param {fetchedMessage} callback signature err, message, dmChannel
-     */
-    fetchMessage(channelId, messageId, callback)
-    {
-        this.channelManager.fetch(channelId)
-        .then(dmChannel =>
-            {
-                dmChannel.messages.fetch(messageId)
-                .then(message =>
-                    {
-                        callback(undefined, message, message.channel);
-                    })
-                .catch(err => callback(err));
-            })
-        .catch(err => callback(err));
-    }
-
-    fetchMessagePromise(channelId, messageId)
+    fetchMessage(channelId, messageId)
     {
         return new Promise((resolve, reject) =>
         {
