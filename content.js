@@ -2,21 +2,21 @@ module.exports =
 {
     create(island)
     {
-        let arrivalMessageContent = "<@" + island.userid + ">";
+        let arrivalMessageContent = `<@${island.userid}>`;
         
         if(island.name)
         {
-            arrivalMessageContent += " (_" + island.name + "_)";
+            arrivalMessageContent += ` (_${island.name}_)`;
         }
         if(island.island)
         {
-            arrivalMessageContent += " from " + island.island;
+            arrivalMessageContent += ` from ${island.island}`;
         }
-        arrivalMessageContent += ": **" + island.dodoCode + "**";
+        arrivalMessageContent += `: **${island.dodoCode}**`;
         
         if(island.comment)
         {
-            arrivalMessageContent += " (" + island.comment + ")";
+            arrivalMessageContent += ` (${island.comment})`;
         }
 
         if(island.ping)
