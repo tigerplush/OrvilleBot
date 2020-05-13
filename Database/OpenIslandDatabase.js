@@ -1,5 +1,7 @@
 const Database = require('./Database.js');
 
+const OpenIslandError = require('./OpenIslandError.js');
+
 class OpenIslandDatabase extends Database
 {
     constructor(pathToDb, dbName)
@@ -23,7 +25,7 @@ class OpenIslandDatabase extends Database
                     {
                         resolve(islands[0]);
                     }
-                    reject(`Couldn't find open island for user ${island.userid} on server ${island.serverid}`);
+                    reject(new OpenIslandError(`Couldn't find open island for user ${island.userid} on server ${island.serverid}`));
                 })
             .catch(err => reject(err));
         });
