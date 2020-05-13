@@ -269,7 +269,17 @@ class QueueUserManager
     {
         let emoji = defaultUserQueueEmoji;
         let queuePost;
-        airportsDb.getAirport(queue.serverid)
+
+        let queueOwner;
+        userDb.get({serverid: queue.serverid, userid: queue.userid})
+        .then(docs =>
+            {
+                if(docs && docs.length > 0)
+                {
+                    queueOwner = docs[0];
+                }
+                return airportsDb.getAirport(queue.serverid);
+            })
         .then(airport =>
             {
                 return this.fetchMessage(airport.channelid, queue.queueMessageId);
@@ -286,7 +296,20 @@ class QueueUserManager
             })
         .then(usersInQueue =>
             {
-                let queueMessageContent = `**<@${queue.userid}>** has an open queue!`;
+                let queueMessageContent = `**<@${queue.userid}>**`;
+
+                if(queueOwner.name)
+                {
+                    queueMessageContent += ` (_${queueOwner.name}_)`;
+                }
+
+                queueMessageContent += `has an open queue`;
+                if(queueOwner.island)
+                {
+                    queueMessageContent += ` for ${queueOwner.island}`;
+                }
+                queueMessageContent += `!`;
+
                 if(queue.comment)
                 {
                     queueMessageContent += ` (${queue.comment})`;
