@@ -20,14 +20,12 @@ module.exports =
             userDb.removeUser(serverid, userid)
             .then(numberOfDeletes =>
                 {
+                    let messageContent = "I couldn't find you in my database";
                     if(numberOfDeletes > 0)
                     {
-                        message.reply("I deleted all your infos from the database");
+                        messageContent = "I deleted all your infos from the database";
                     }
-                    else
-                    {
-                        message.reply("I couldn't find you in my database");
-                    }
+                    return message.reply(messageContent);
                 })
             .catch(err => console.log(err));
         }
@@ -39,20 +37,19 @@ module.exports =
                 userDb.removeProperty(serverid, userid, prop)
                 .then(propertyValue =>
                     {
+                        let messageContent = "I couldn't find your " + prop + " in my database";
                         if(propertyValue)
                         {
-                            message.reply("I deleted your " + prop + " from the database");
+                            messageContent = "I deleted your " + prop + " from the database";
                         }
-                        else
-                        {
-                            message.reply("I couldn't find your " + prop + " in my database");
-                        }
+                        return message.reply(messageContent);
                     })
                 .catch(err => console.log(err));
             }
             else
             {
-                message.reply("you can only delete your ingame `name`, your `island` name or your ingame `title`.");
+                message.reply("you can only delete your ingame `name`, your `island` name or your ingame `title`")
+                .catch(err => console.log(err));
             }
         }
     },
