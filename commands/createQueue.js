@@ -19,7 +19,7 @@ module.exports =
     description: "Creates a queue for your island. Orville will dm you to ask you for the code",
     example:
         [
-            ["", "creates a queue for your island. Orville will dm you to ask you for the code"]
+            ["", "creates a queue for your island. Orville will dm you to ask you for the code"],
             ["turnips for 600 Bells!!!", "creates a queue for your island with the comment 'turnips for 600 Bells!!!'. Orville will dm you to ask you for the code"]
         ],
     execute(message, args)
