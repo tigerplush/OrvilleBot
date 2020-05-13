@@ -1,4 +1,6 @@
-const {airportsDb, openIslandsDb, userDb} = require('../Database/databases.js');
+const {openIslandsDb, userDb} = require('../Database/databases.js');
+
+const OpenIslandError = require('../Database/OpenIslandError.js');
 
 module.exports =
 {
@@ -15,33 +17,37 @@ module.exports =
         const serverid = message.guild.id;
         const userid = message.author.id;
 
+        let closingMessage = "renewing your lease";
+        let islandToRenew;
+
         openIslandsDb.getIsland({serverid: serverid, userid: userid})
         .then(island =>
             {
-                let closingMessage = "renewing your lease";
-                userDb.getUser(serverid, userid)
-                .then(user =>
-                    {
-                        if(user.island)
-                        {
-                            closingMessage += " for " + user.island;
-                        }
-                        return closingMessage;
-                    })
+                islandToRenew = island;
+                return userDb.getUser(serverid, userid)
                 .catch(err =>
                     {
-                        console.log(err);
-                        return closingMessage;
-                    })
-                .then(closingMessage =>
-                    {
-                        message.reply(closingMessage);
-                        client.emit('renewLease', island);
+                        return {};
                     });
+            })
+        .then(user =>
+            {
+                if(user.island)
+                {
+                    closingMessage += " for " + user.island;
+                }
+            })
+        .then(() =>
+            {
+                client.emit('renewLease', islandToRenew);
+                return message.reply(closingMessage);
             })
         .catch(err =>
             {
-                message.reply("you currently have no open island");
+                if(err instanceof OpenIslandError)
+                {
+                    message.reply("you currently have no open island")
+                }
                 console.log(err + " for server " + serverid + " and user " + userid);
             });
     },
