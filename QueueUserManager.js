@@ -270,7 +270,7 @@ class QueueUserManager
         let emoji = defaultUserQueueEmoji;
         let queuePost;
 
-        let queueOwner;
+        let queueOwner = {};
         userDb.get({serverid: queue.serverid, userid: queue.userid})
         .then(docs =>
             {
