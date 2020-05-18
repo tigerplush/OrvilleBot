@@ -73,7 +73,6 @@ module.exports =
                         closingMessage += " " + userInfo.island;
                     }
                     client.emit('close' + toClose[0].capitalize(), island, queue);
-                    //client.emit('closeIsland', {serverid: serverid, userid: userid, messageid: island.messageid, warningmessageid: island.warningmessageid});
                     message.reply(closingMessage);
                 }
             })

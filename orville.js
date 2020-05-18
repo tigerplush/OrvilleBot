@@ -72,7 +72,7 @@ bot.on('openIsland', island => {
 });
 
 bot.on('closeIsland', island => {
-    message.deleteIslandMessage(bot, island)
+    message.deleteIslandMessage(bot, island);
     openIslandsDb.close(island);
     graphic.removeImage(island);
 });
