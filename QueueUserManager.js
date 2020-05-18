@@ -324,6 +324,35 @@ class QueueUserManager
         .catch(err => console.log(err));
     }
 
+    close(queue)
+    {
+        // delete waiting messages for all users
+    // send all users "the queue has been closed"
+        this.removeAll(queue);
+
+        //find airport
+        airportsDb.getAirport(queue.serverid)
+        .then(airport =>
+            {
+                //fetch queue message
+                return this.fetchMessage(airport.channelid, queue.queueMessageId)
+            })
+        .then(queueMessage =>
+            {
+                // delete message
+                return queueMessage.delete();
+            })
+        .catch(err => console.log(err));
+
+        //edit dm queue message
+        this.fetchMessage(queue.dmChannelId, queue.dmMessageId)
+        .then(dmMessage =>
+            {
+                return dmMessage.edit(`You have closed your queue with the dodo code **${queue.dodoCode}**`);
+            })
+        .catch(err => console.log(err));
+    }
+
     fetchMessage(channelId, messageId)
     {
         return new Promise((resolve, reject) =>

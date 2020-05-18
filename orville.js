@@ -78,40 +78,7 @@ bot.on('closeIsland', island => {
 });
 
 bot.on('closeQueue', (undefined, queue) => {
-    // delete waiting messages for all users
-    // send all users "the queue has been closed"
-    queueUserManager.removeAll(queue);
-
-    //find airport
-    airportsDb.getAirport(queue.serverid)
-    .then(airport =>
-        {
-            //fetch airport channel
-            return bot.channels.fetch(airport.channelid);
-        })
-    .then(channel =>
-        {
-            //fetch queue message
-            return channel.messages.fetch(queue.queueMessageId);
-        })
-    .then(queueMessage =>
-        {
-            // delete message
-            return queueMessage.delete();
-        })
-    .catch(err => console.log(err));
-
-    //edit dm queue message
-    bot.channels.fetch(queue.dmChannelId)
-    .then(dmChannel =>
-        {
-            return dmChannel.messages.fetch(queue.dmMessageId);
-        })
-    .then(dmMessage =>
-        {
-            return dmMessage.edit(`You have closed your queue with the dodo code **${queue.dodoCode}**`);
-        })
-    .catch(err => console.log(err));
+    queueUserManager.close(queue);
 
     // remove queue from database
     openQueuesDb.remove(queue)
