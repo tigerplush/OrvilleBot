@@ -247,7 +247,7 @@ class QueueUserManager
                 {
                     //user has to wait
                     let messageContent = `You are now in a queue for **${queue.username}**${modifier} island\n`;
-                    if(queueSize - index > 0)
+                    if(queueSize !== index)
                     {
                         messageContent += `There are ${queueSize - index} people before you`;
                     }
