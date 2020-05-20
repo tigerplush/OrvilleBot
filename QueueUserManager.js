@@ -298,39 +298,7 @@ class QueueUserManager
             })
         .then(usersInQueue =>
             {
-                let queueMessageContent = `**<@${queue.userid}>**`;
-
-                if(queueOwner.name)
-                {
-                    queueMessageContent += ` (_${queueOwner.name}_)`;
-                }
-
-                queueMessageContent += ` has an open queue`;
-                if(queueOwner.island)
-                {
-                    queueMessageContent += ` for ${queueOwner.island}`;
-                }
-                queueMessageContent += `!`;
-
-                if(queue.comment)
-                {
-                    queueMessageContent += ` (${queue.comment})`;
-                }
-                if(usersInQueue && usersInQueue.length > 0)
-                {
-                    queueMessageContent += `\nThere are currently _${usersInQueue.length}_ users in this queue`;
-                    queueMessageContent += `\nOn the island are currently:`
-                    usersInQueue.forEach((element, index) =>
-                    {
-                        if(index < queueSize)
-                        {
-                            const visitDuration = moment(element.timestamp).fromNow();
-                            queueMessageContent += `\n ${element.name} (_joined ${visitDuration}_)`;
-                        }
-                    })
-                }
-                queueMessageContent += `\nReact with ${emoji} to join the queue!`;
-                queueMessageContent += `\nPlease remove your reaction when you're finished - please requeue for each trip`
+                let queueMessageContent = ToQueuePost(queue, queueOwner, usersInQueue, emoji);
                 return queuePost.edit(queueMessageContent);
             })
         .catch(err => console.log(err));
@@ -407,4 +375,44 @@ function ToMessage(userInfo)
         message += ` from ${userInfo.island}`;
     }
     return message;
+}
+
+function ToQueuePost(queue, queueOwner, usersInQueue, emoji)
+{
+    let queueMessageContent = `**<@${queue.userid}>**`;
+
+    if(queueOwner.name)
+    {
+        queueMessageContent += ` (_${queueOwner.name}_)`;
+    }
+
+    queueMessageContent += ` has an open queue`;
+    if(queueOwner.island)
+    {
+        queueMessageContent += ` for ${queueOwner.island}`;
+    }
+    queueMessageContent += `!`;
+
+    if(queue.comment)
+    {
+        queueMessageContent += ` (${queue.comment})`;
+    }
+    if(usersInQueue && usersInQueue.length > 0)
+    {
+        queueMessageContent += `\nThere are currently _${usersInQueue.length}_ users in this queue`;
+        queueMessageContent += `\nOn the island are currently:`
+        usersInQueue.forEach((element, index) =>
+        {
+            if(index < queueSize)
+            {
+                const ind = index + 1;
+                const number = ind === 1 ? "one" : ind === 2 ? "two" : "three";
+                const visitDuration = moment(element.timestamp).fromNow();
+                queueMessageContent += `\n :${number}: ${element.name} (_joined ${visitDuration}_)`;
+            }
+        })
+    }
+    queueMessageContent += `\nReact with ${emoji} to join the queue!`;
+    queueMessageContent += `\nPlease remove your reaction when you're finished - please requeue for each trip`;
+    return queueMessageContent;
 }
