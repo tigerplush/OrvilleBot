@@ -251,7 +251,7 @@ class QueueUserManager
                     let messageContent = `You are now in a queue for **${queue.username}**${modifier} island\n`;
                     if(queueSize !== index)
                     {
-                        messageContent += `There are ${queueSize - index} people before you`;
+                        messageContent += `There are ${index - queueSize} people before you`;
                     }
                     else
                     {
