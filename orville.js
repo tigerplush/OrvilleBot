@@ -55,6 +55,19 @@ cron.schedule("*/10 * * * *", () =>
     .catch(err => console.log(err));
 });
 
+cron.schedule("*/1 * * * *", () =>
+{
+    openQueuesDb.getAll()
+    .then(queues =>
+        {
+            queues.forEach((queue) =>
+            {
+                queueUserManager.updateQueuePost(queue);
+            });
+        })
+    .catch(err => console.error(err));
+});
+
 bot.on('updateAirports', airport => {
     airportsDb.addOrUpdate(airport)
     .catch(err => console.log(err));

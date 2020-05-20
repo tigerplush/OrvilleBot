@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const {defaultUserQueueEmoji, queueSize} = require('./queueConfig.json');
 
 const {airportsDb, userDb, queuedUsersDb} = require('./Database/databases.js');
@@ -240,7 +242,7 @@ class QueueUserManager
                     return message.channel.send(`The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
                     .then(dodoCodeMessage =>
                         {
-                            return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id});
+                            return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id, timestamp: Date.now()});
                         });
                 }
                 else
@@ -292,7 +294,7 @@ class QueueUserManager
                     emoji = cachedEmoji;
                 }
                 queuePost = message;
-                return queuedUsersDb.count({queueid: queue._id});
+                return queuedUsersDb.getSortedUsers({queueid: queue._id});
             })
         .then(usersInQueue =>
             {
@@ -314,11 +316,21 @@ class QueueUserManager
                 {
                     queueMessageContent += ` (${queue.comment})`;
                 }
-                if(usersInQueue)
+                if(usersInQueue && usersInQueue.length > 0)
                 {
-                    queueMessageContent += `\nThere are currently _${usersInQueue}_ users in this queue`;
+                    queueMessageContent += `\nThere are currently _${usersInQueue.length}_ users in this queue`;
+                    queueMessageContent += `\nOn the island are currently:`
+                    usersInQueue.forEach((element, index) =>
+                    {
+                        if(index < queueSize)
+                        {
+                            const visitDuration = moment(element.timestamp).fromNow();
+                            queueMessageContent += `\n ${element.name} (_joined ${visitDuration}_)`;
+                        }
+                    })
                 }
                 queueMessageContent += `\nReact with ${emoji} to join the queue!`;
+                queueMessageContent += `\nPlease remove your reaction when you're finished - please requeue for each trip`
                 return queuePost.edit(queueMessageContent);
             })
         .catch(err => console.log(err));
