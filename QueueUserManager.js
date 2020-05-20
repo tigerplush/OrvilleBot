@@ -303,7 +303,7 @@ class QueueUserManager
                     queueMessageContent += ` (_${queueOwner.name}_)`;
                 }
 
-                queueMessageContent += `has an open queue`;
+                queueMessageContent += ` has an open queue`;
                 if(queueOwner.island)
                 {
                     queueMessageContent += ` for ${queueOwner.island}`;
