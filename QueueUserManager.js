@@ -242,7 +242,7 @@ class QueueUserManager
                     return message.channel.send(`The dodo code is **${queue.dodoCode}**\nIf you need to do a second trip, please requeue!`)
                     .then(dodoCodeMessage =>
                         {
-                            return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id, timestamp: Date.now()});
+                            return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id, arrivalTimestamp: Date.now()});
                         });
                 }
                 else
@@ -407,7 +407,7 @@ function ToQueuePost(queue, queueOwner, usersInQueue, emoji)
             {
                 const ind = index + 1;
                 const number = ind === 1 ? "one" : ind === 2 ? "two" : "three";
-                const visitDuration = moment(element.timestamp).fromNow();
+                const visitDuration = moment(element.arrivalTimestamp).fromNow();
                 queueMessageContent += `\n :${number}: ${element.name} (_joined ${visitDuration}_)`;
             }
         })
