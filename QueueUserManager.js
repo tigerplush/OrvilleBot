@@ -273,6 +273,7 @@ class QueueUserManager
         let queuePost;
 
         let queueOwner = {};
+        let queueUsers = [];
         userDb.get({serverid: queue.serverid, userid: queue.userid})
         .then(docs =>
             {
@@ -298,7 +299,16 @@ class QueueUserManager
             })
         .then(usersInQueue =>
             {
-                let queueMessageContent = ToQueuePost(queue, queueOwner, usersInQueue, emoji);
+                queueUsers = usersInQueue;
+
+                const userInfoPromises = queueUsers.map(user => userDb.get({serverid: queue.serverid, userid: user.userid}));
+
+                return Promise.all(userInfoPromises);
+            })
+        .then(userInfoArray =>
+            {
+                const userInfos = userInfoArray.flat();
+                let queueMessageContent = ToQueuePost(queue, queueOwner, queueUsers, emoji, userInfos);
                 return queuePost.edit(queueMessageContent);
             })
         .catch(err => console.log(err));
@@ -380,7 +390,7 @@ function ToMessage(userInfo)
     return message;
 }
 
-function ToQueuePost(queue, queueOwner, usersInQueue, emoji)
+function ToQueuePost(queue, queueOwner, usersInQueue, emoji, userInfos)
 {
     let queueMessageContent = `**<@${queue.userid}>**`;
 
@@ -410,7 +420,20 @@ function ToQueuePost(queue, queueOwner, usersInQueue, emoji)
             {
                 const number = ToName(index + 1);
                 const visitDuration = moment(element.arrivalTimestamp).fromNow();
-                queueMessageContent += `\n :${number}: ${element.name} (_joined ${visitDuration}_)`;
+                queueMessageContent += `\n :${number}: <@!${element.userid}>`;
+                const userInfo = userInfos.find(user => user.userid === element.userid);
+                if(userInfo)
+                {
+                    if(userInfo.name)
+                    {
+                        queueMessageContent += ` (_${userInfo.name}_)`;
+                    }
+                    if(userInfo.island)
+                    {
+                        queueMessageContent += ` from ${userInfo.island}`
+                    }
+                }
+                queueMessageContent += ` (_joined ${visitDuration}_)`;
             }
         })
     }
