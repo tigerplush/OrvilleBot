@@ -374,6 +374,9 @@ function ToMessage(userInfo)
     {
         message += ` from ${userInfo.island}`;
     }
+
+    const visitDuration = moment(userInfo.arrivalTimestamp).fromNow();
+    message += ` (_joined ${visitDuration}_)`;
     return message;
 }
 
