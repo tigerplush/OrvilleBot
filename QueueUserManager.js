@@ -307,7 +307,7 @@ class QueueUserManager
             })
         .then(userInfoArray =>
             {
-                const userInfos = userInfoArray.flat();
+                const userInfos = userInfoArray.reduce((acc, val) => acc.concat(val), []);
                 let queueMessageContent = ToQueuePost(queue, queueOwner, queueUsers, emoji, userInfos);
                 return queuePost.edit(queueMessageContent);
             })
