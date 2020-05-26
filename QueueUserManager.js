@@ -245,7 +245,7 @@ class QueueUserManager
                             return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {dodoCodeMessage: dodoCodeMessage.id, arrivalTimestamp: Date.now()});
                         });
                 }
-                else
+                else if (!user.dodoCodeMessage)
                 {
                     //user has to wait
                     let messageContent = `You are now in a queue for **${queue.username}**${modifier} island\n`;
