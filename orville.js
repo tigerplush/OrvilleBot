@@ -62,7 +62,7 @@ cron.schedule("*/1 * * * *", () =>
         {
             queues.forEach((queue) =>
             {
-                queueUserManager.updateQueuePost(queue);
+                queueUserManager.update(queue);
             });
         })
     .catch(err => console.error(err));
