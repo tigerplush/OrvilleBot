@@ -405,8 +405,7 @@ function ToQueuePost(queue, queueOwner, usersInQueue, emoji)
         {
             if(index < queueSize)
             {
-                const ind = index + 1;
-                const number = ind === 1 ? "one" : ind === 2 ? "two" : "three";
+                const number = ToName(index + 1);
                 const visitDuration = moment(element.arrivalTimestamp).fromNow();
                 queueMessageContent += `\n :${number}: ${element.name} (_joined ${visitDuration}_)`;
             }
@@ -415,4 +414,23 @@ function ToQueuePost(queue, queueOwner, usersInQueue, emoji)
     queueMessageContent += `\nReact with ${emoji} to join the queue!`;
     queueMessageContent += `\nPlease remove your reaction when you're finished - please requeue for each trip`;
     return queueMessageContent;
+}
+
+function ToName(number)
+{
+    const names =
+    [
+        "zero"
+        ,"one"
+        ,"two"
+        ,"three"
+        ,"four"
+        ,"five"
+        ,"six"
+        ,"seven"
+        ,"eight"
+        ,"nine"
+    ];
+
+    return names[number];
 }
