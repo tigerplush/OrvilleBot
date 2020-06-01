@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const {defaultUserQueueEmoji, queueSize} = require('./queueConfig.json');
+const {queueUserWarningTime, defaultUserQueueEmoji, queueSize} = require('./queueConfig.json');
 
 const {airportsDb, userDb, queuedUsersDb} = require('./Database/databases.js');
 
@@ -113,6 +113,13 @@ class QueueUserManager
                     return message.delete();
                 })
             .catch(err => console.log(err));
+
+            this.fetchMessage(queuedUser.dmChannelId, queuedUser.warningMessageId)
+            .then(message =>
+                {
+                    return message.delete();
+                })
+            .catch(err => console.error(err));
         })
         .catch(err => console.log(err));
     }
@@ -232,6 +239,9 @@ class QueueUserManager
         this.fetchMessage(user.dmChannelId, user.dmMessageId)
         .then(message =>
             {
+                const queueUserWarningDuration = moment.duration(queueUserWarningTime);
+                const warningTime = moment(user.arrivalTimestamp).add(queueUserWarningDuration);
+
                 let modifier = queue.username.slice(-1) === "s" ? "'" : "s";
                 if(index < queueSize && !user.dodoCodeMessage)
                 {
@@ -258,6 +268,15 @@ class QueueUserManager
                         messageContent += `You're next!`
                     }
                     return message.edit(messageContent);
+                }
+                else if(user.dodoCodeMessage && moment() > warningTime && !user.warningMessageId)
+                {
+                        message.channel.send(`You have been in this queue for over ${queueUserWarningTime.humanize()} - please remember to leave the queue`)
+                        .then(warningMessage =>
+                            {
+                                return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {warningMessageId: warningMessage.id});
+                            })
+                        .catch(err => console.error(err));
                 }
             })
         .catch(err => console.log(err));

@@ -1,5 +1,6 @@
 {
     "dodoCodeWaitingTime": "00:03:00"
+    ,"queueUserWarningTime": "00:15:00"
     ,"nextUserEmoji": "➡"
     ,"defaultUserQueueEmoji": "✈️"
     ,"queueSize": 3
