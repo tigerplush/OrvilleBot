@@ -467,6 +467,11 @@ function ToQueuePost(queue, queueOwner, usersInQueue, emoji, userInfos)
     return queueMessageContent;
 }
 
+
+/**
+ * Converts a number from 0 to 9 into a string
+ * @param {Number} number 
+ */
 function ToName(number)
 {
     const names =
@@ -482,6 +487,15 @@ function ToName(number)
         ,"eight"
         ,"nine"
     ];
+
+    if(number < 0)
+    {
+        number = 0;
+    }
+    if(number >= names.length)
+    {
+        number = names.length - 1;
+    }
 
     return names[number];
 }
