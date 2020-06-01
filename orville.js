@@ -115,23 +115,22 @@ bot.on('fetchedUrl', (island) => {
         attachment = new Discord.MessageAttachment(Buffer.from(island.baseUrl));
     }
     airportsDb.getAirport(island.serverid)
-    .then(airport => {
-        bot.channels.fetch(airport.channelid)
-        .then(channel =>
-            {
-                channel.send(arrivalMessageContent, attachment)
-                .then(graphMessage =>
-                    {
-                        island.warning = false;
-                        island.timestamp = Date.now();
-                        island.arrivalMessageId = graphMessage.id;
-                        openIslandsDb.open(island);
-                    })
-                .catch(err => console.log(err));
-            })
-        .catch(err => console.log(err));
-    })
-    .catch(err => console.log(err));
+    .then(airport =>
+        {
+            return bot.channels.fetch(airport.channelid);
+        })
+    .then(channel =>
+        {
+            return channel.send(arrivalMessageContent, attachment);
+        })
+    .then(graphMessage =>
+        {
+            island.warning = false;
+            island.timestamp = Date.now();
+            island.arrivalMessageId = graphMessage.id;
+            openIslandsDb.open(island);
+        })
+    .catch(err => console.error(err));
 });
 
 bot.on('renewLease', (island) => {
