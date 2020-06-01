@@ -1,4 +1,6 @@
 const moment = require('moment');
+
+const { ping } = require('../config.json');
 const {dodoCodeWaitingTime, defaultUserQueueEmoji} = require('../queueConfig.json');
 const {airportsDb, openIslandsDb, userDb, openQueuesDb} = require('../Database/databases.js');
 
@@ -141,6 +143,28 @@ module.exports =
                     {
                         queueMessageContent += ` (${comment})`;
                         queue.comment = comment;
+                    }
+
+                    const codeword = comment.match(new RegExp(ping.word, "i"));
+                    const threshold = args.filter(word =>
+                        {
+                            if(Number(word) && Number(word) >= ping.threshold)
+                            {
+                                return Number(word);
+                            }
+                        });
+                    if(codeword && codeword.length > 0 && threshold && threshold.length > 0)
+                    {
+                        const pingRole = message.guild.roles.cache.find(role => role.name === ping.role);
+                        if(pingRole)
+                        {
+                            queue.ping = pingRole.id;
+                        }
+                    }
+                    
+                    if(queue.ping)
+                    {
+                        queueMessageContent += ` <@&${queue.ping}>`;
                     }
 
                     if(airport.emoji)

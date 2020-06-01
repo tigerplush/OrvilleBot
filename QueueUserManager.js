@@ -410,6 +410,12 @@ function ToQueuePost(queue, queueOwner, usersInQueue, emoji, userInfos)
     {
         queueMessageContent += ` (${queue.comment})`;
     }
+
+    if(queue.ping)
+    {
+        queueMessageContent += ` <@&${queue.ping}>`;
+    }
+
     if(usersInQueue && usersInQueue.length > 0)
     {
         queueMessageContent += `\nThere are currently _${usersInQueue.length}_ users in this queue`;
