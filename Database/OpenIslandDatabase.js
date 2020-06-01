@@ -38,13 +38,9 @@ class OpenIslandDatabase extends Database
 
     open(island)
     {
-        return super.add({
-            serverid: island.serverid,
-            userid: island.userid,
-            messageid: island.arrivalMessageId,
-            timestamp: island.timestamp,
-            warning: false
-        });
+        delete island.baseUrl;
+        island.warning = false;
+        return super.add(island);
     }
 
     close(island)
