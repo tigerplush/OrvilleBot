@@ -11,7 +11,7 @@ module.exports =
                 client.channels.fetch(airport.channelid)
                 .then(channel =>
                     {
-                        deleteMessage(channel, island.messageid);
+                        deleteMessage(channel, island.arrivalMessageId);
                         deleteMessage(channel, island.warningmessageid);
                     })
                 .catch(() => console.log("Could not find airport channel, must have been deleted"));
