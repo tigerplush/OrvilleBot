@@ -271,7 +271,7 @@ class QueueUserManager
                 }
                 else if(user.dodoCodeMessage && moment() > warningTime && !user.warningMessageId)
                 {
-                        message.channel.send(`You have been in this queue for over ${queueUserWarningTime.humanize()} - please remember to leave the queue`)
+                        message.channel.send(`You have been in this queue for ${queueUserWarningDuration.humanize()} - please remember to leave the queue`)
                         .then(warningMessage =>
                             {
                                 return queuedUsersDb.update({queueid: queue._id, userid: user.userid}, {warningMessageId: warningMessage.id});
